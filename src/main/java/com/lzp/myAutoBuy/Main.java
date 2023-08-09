@@ -52,7 +52,7 @@ public class Main {
 
         synchronized (Main.class) {
             Main.class.wait();
-            long deadline = System.currentTimeMillis()+3600000;
+            long deadline = System.currentTimeMillis()+720000;
             while (System.currentTimeMillis() < deadline) {
 
                 robot.mouseMove((int) points[0].getX(), (int) points[0].getY());
@@ -62,7 +62,7 @@ public class Main {
                 mousePressAndRelease(robot);
                 Thread.sleep(100);
                 BufferedImage screenShot = robot.createScreenCapture(new Rectangle(Toolkit.getDefaultToolkit().getScreenSize()));
-                BufferedImage windowImage = screenShot.getSubimage(0, 0, screenShot.getWidth() / 3, screenShot.getHeight() / 3);
+                //BufferedImage windowImage = screenShot.getSubimage(0, 0, screenShot.getWidth() / 2, screenShot.getHeight() / 2);
                 if (consist(screenShot)) {
                     for (int i = 2; i < points.length; i++) {
                         Thread.sleep(50);
