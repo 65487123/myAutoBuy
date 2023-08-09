@@ -35,7 +35,7 @@ public class Main {
         new Thread(() -> {
             for (int i = 0; i < 6; i++) {
                 try {
-                    Thread.sleep(2000);
+                    Thread.sleep(1000);
                 } catch (InterruptedException ignored) {
                 }
                 points[i] = MouseInfo.getPointerInfo().getLocation();
@@ -52,23 +52,32 @@ public class Main {
 
         synchronized (Main.class) {
             Main.class.wait();
-            while (!shutdown) {
+            long deadline = System.currentTimeMillis()+3600000;
+            while (System.currentTimeMillis() < deadline) {
+
                 robot.mouseMove((int) points[0].getX(), (int) points[0].getY());
-                robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
-                robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
-                //Thread.sleep(1000);
+                mousePressAndRelease(robot);
+
+                robot.mouseMove((int) points[1].getX(), (int) points[1].getY());
+                mousePressAndRelease(robot);
+                Thread.sleep(100);
                 BufferedImage screenShot = robot.createScreenCapture(new Rectangle(Toolkit.getDefaultToolkit().getScreenSize()));
-                BufferedImage windowImage = screenShot.getSubimage(0, 0, screenShot.getWidth()/3, screenShot.getHeight()/3);
-                if (consist(windowImage)){
-                    for (int i = 1; i < points.length; i++) {
-                        Thread.sleep(5000);
-                        robot.mouseMove((int) points[i].getX(), (int) points[1].getY());
-                        robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
-                        robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+                BufferedImage windowImage = screenShot.getSubimage(0, 0, screenShot.getWidth() / 3, screenShot.getHeight() / 3);
+                if (consist(screenShot)) {
+                    for (int i = 2; i < points.length; i++) {
+                        Thread.sleep(50);
+                        robot.mouseMove((int) points[i].getX(), (int) points[i].getY());
+                        mousePressAndRelease(robot);
                     }
                 }
             }
         }
+    }
+
+    private static  void mousePressAndRelease(Robot robot){
+        robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+        robot.delay(50);
+        robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
     }
     private static boolean consist(BufferedImage capturedImage) {
 
