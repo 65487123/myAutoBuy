@@ -26,6 +26,10 @@ public class Main {
     private static int expectedHeightD ;
     private static int[] expectedPixelsD;
 
+    private static int expectedWidthW;
+    private static int expectedHeightW ;
+    private static int[] expectedPixelsW;
+
 
     private static Point[] points= new Point[6];
 
@@ -52,7 +56,10 @@ public class Main {
             expectedWidthD = expectedImageD.getWidth();
             expectedHeightD = expectedImageD.getHeight();
             expectedPixelsD = expectedImageD.getRGB(0, 0, expectedWidthD, expectedHeightD, null, 0, expectedWidthD);
-
+            BufferedImage expectedImageW = ImageIO.read(new File("./window.png"));
+            expectedWidthW = expectedImageW.getWidth();
+            expectedHeightW = expectedImageW.getHeight();
+            expectedPixelsW = expectedImageW.getRGB(0, 0, expectedWidthW, expectedHeightW, null, 0, expectedWidthW);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -76,37 +83,84 @@ public class Main {
             synchronized (Main.class){
                 Main.class.notify();
             }
-            //new Thread(KeyListenerImpl::new).start();
         }).start();
 
         synchronized (Main.class) {
             Main.class.wait();
-            long deadline = System.currentTimeMillis()+720000;
             for (; ;){
-
                 robot.mouseMove((int) points[0].getX(), (int) points[0].getY());
                 mousePressAndRelease(robot);
 
                 robot.mouseMove((int) points[1].getX(), (int) points[1].getY());
                 mousePressAndRelease(robot);
-                Thread.sleep(30);
+                Thread.sleep(100);
                 BufferedImage screenShot = robot.createScreenCapture(new Rectangle(Toolkit.getDefaultToolkit().getScreenSize()));
                 BufferedImage windowImage = screenShot.getSubimage(0, 0, screenShot.getWidth() / 2, screenShot.getHeight() / 2);
                 if (match(windowImage)) {
                     for (int i = 2; i < points.length; i++) {
-                        Thread.sleep(10);
-                        robot.mouseMove((int) points[i].getX(), (int) points[i].getY());
-                        mousePressAndRelease(robot);
+                        if (i == 3) {
+                            robot.mouseMove((int) points[i].getX(), (int) points[i].getY());
+                            screenShot = robot.createScreenCapture(new Rectangle(Toolkit.getDefaultToolkit().getScreenSize()));
+                            windowImage = screenShot.getSubimage(0, 0, screenShot.getWidth() / 2, screenShot.getHeight() / 2);
+                            if (match(windowImage)) {
+                                mousePressAndRelease(robot);
+                            }
+                            if (!waitUntilWindowAppear(robot)) {
+                                break;
+                            }
+                        } else {
+                            robot.mouseMove((int) points[i].getX(), (int) points[i].getY());
+                            mousePressAndRelease(robot);
+                        }
                     }
                 }
             }
         }
     }
 
+    private static boolean waitUntilWindowAppear(Robot robot) throws InterruptedException {
+        long time  = System.currentTimeMillis();
+        while (!containBuyingWindow(robot)){
+            Thread.sleep(10);
+            if (System.currentTimeMillis() - time > 1000) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private static  void mousePressAndRelease(Robot robot){
         robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
-        robot.delay(10);
+        robot.delay(20);
         robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+    }
+
+    private static boolean  containBuyingWindow(Robot robot){
+        BufferedImage screenShot = robot.createScreenCapture(new Rectangle(Toolkit.getDefaultToolkit().getScreenSize()));
+        BufferedImage windowImage = screenShot.getSubimage(0, 0, screenShot.getWidth() / 2, screenShot.getHeight() / 2);
+        int capturedWidth = windowImage.getWidth();
+        int capturedHeight = windowImage.getHeight();
+        int[] capturedPixels = windowImage.getRGB(0, 0, capturedWidth, capturedHeight, null, 0, capturedWidth);
+        for (int y1 = 0; y1 < capturedHeight; y1++) {
+            a:
+            for (int x1 = 0; x1 < capturedWidth; x1++) {
+                int capturedPixel1 = capturedPixels[y1 * capturedWidth + x1];
+                if (expectedPixelsW[0] == capturedPixel1) {
+                    for (int y = 0; y < expectedHeightW; y++) {
+                        for (int x = 0; x < expectedWidthW; x++) {
+                            int expectedPixel = expectedPixelsW[y * expectedWidthW + x];
+                            int capturedPixel = capturedPixels[(y+y1) * capturedWidth + (x+x1)];
+
+                            if (expectedPixel != capturedPixel) {
+                                continue a;
+                            }
+                        }
+                    }
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private static boolean match(BufferedImage capturedImage) {
