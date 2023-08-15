@@ -31,7 +31,17 @@ public class Main {
     private static int[] expectedPixelsW;
 
 
+    private static int expectedWidthG;
+    private static int expectedHeightG ;
+    private static int[] expectedPixelsG;
 
+    private static int expectedWidthBo;
+    private static int expectedHeightBo ;
+    private static int[] expectedPixelsBo;
+
+    private static int expectedWidthG1;
+    private static int expectedHeightG1 ;
+    private static int[] expectedPixelsG1;
     private static Rectangle captureRect;
 
     private static Point[] points= new Point[6];
@@ -68,6 +78,20 @@ public class Main {
             expectedHeightW = expectedImageW.getHeight();
             expectedPixelsW = expectedImageW.getRGB(0, 0, expectedWidthW, expectedHeightW, null, 0, expectedWidthW);
 
+            BufferedImage expectedImageG = ImageIO.read(new File("./gold.png"));
+            expectedWidthG = expectedImageG.getWidth();
+            expectedHeightG = expectedImageG.getHeight();
+            expectedPixelsG = expectedImageG.getRGB(0, 0, expectedWidthG, expectedHeightG, null, 0, expectedWidthG);
+
+            BufferedImage expectedImageG1 = ImageIO.read(new File("./gold1.png"));
+            expectedWidthG1 = expectedImageG1.getWidth();
+            expectedHeightG1 = expectedImageG1.getHeight();
+            expectedPixelsG1 = expectedImageG1.getRGB(0, 0, expectedWidthG1, expectedHeightG1, null, 0, expectedWidthG1);
+
+            BufferedImage expectedImageBo = ImageIO.read(new File("./box.png"));
+            expectedWidthBo = expectedImageBo.getWidth();
+            expectedHeightBo = expectedImageBo.getHeight();
+            expectedPixelsBo = expectedImageBo.getRGB(0, 0, expectedWidthBo, expectedHeightBo, null, 0, expectedWidthBo);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -132,17 +156,17 @@ public class Main {
 
         synchronized (Main.class) {
             Main.class.wait();
-            //for (int l=0; l<100;l++){
+            //for (int l=0; l<5000;l++){
             for (;;){
                 robot.mouseMove((int) points[0].getX(), (int) points[0].getY());
                 mousePressAndRelease(robot);
-                Thread.sleep(1);
+                waitUntilBoxAppear(robot);
                 robot.mouseMove((int) points[1].getX(), (int) points[1].getY());
                 mousePressAndRelease(robot);
-                Thread.sleep(120);
+                waitUntilGlodAppear(robot);
                 robot.mouseMove((int) points[2].getX(), (int) points[2].getY());
                 mousePressAndRelease(robot);
-                Thread.sleep(35);
+                waitUntilGlod1Appear(robot);
                 robot.mouseMove((int) points[3].getX(), (int) points[3].getY());
                 BufferedImage screenCapture =robot.createScreenCapture(captureRect);
                 if (match(screenCapture)) {
@@ -162,6 +186,39 @@ public class Main {
                 }
             }
         }
+    }
+
+    private static boolean waitUntilGlodAppear(Robot robot) throws InterruptedException {
+        long time  = System.currentTimeMillis();
+        Thread.sleep(30);
+        while (!containGold(robot)){
+            if (System.currentTimeMillis() - time > 300) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean waitUntilGlod1Appear(Robot robot) throws InterruptedException {
+        long time  = System.currentTimeMillis();
+        Thread.sleep(10);
+        while (!containGold1(robot)){
+            if (System.currentTimeMillis() - time > 300) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean waitUntilBoxAppear(Robot robot) throws InterruptedException {
+        long time  = System.currentTimeMillis();
+        Thread.sleep(50);
+        while (!containBox(robot)){
+            if (System.currentTimeMillis() - time > 300) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static boolean waitUntilWindowAppear(Robot robot) throws InterruptedException {
@@ -195,6 +252,86 @@ public class Main {
                     for (int y = 0; y < expectedHeightW; y++) {
                         for (int x = 0; x < expectedWidthW; x++) {
                             int expectedPixel = expectedPixelsW[y * expectedWidthW + x];
+                            int capturedPixel = capturedPixels[(y+y1) * capturedWidth + (x+x1)];
+
+                            if (expectedPixel != capturedPixel) {
+                                continue a;
+                            }
+                        }
+                    }
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    private static boolean  containBox(Robot robot){
+        BufferedImage screenCapture = robot.createScreenCapture(captureRect);
+        int capturedWidth = screenCapture.getWidth();
+        int capturedHeight = screenCapture.getHeight();
+        int[] capturedPixels = screenCapture.getRGB(0, 0, capturedWidth, capturedHeight, null, 0, capturedWidth);
+        for (int y1 = 0; y1 < capturedHeight; y1++) {
+            a:
+            for (int x1 = 0; x1 < capturedWidth; x1++) {
+                int capturedPixel1 = capturedPixels[y1 * capturedWidth + x1];
+                if (expectedPixelsBo[0] == capturedPixel1) {
+                    for (int y = 0; y < expectedHeightBo; y++) {
+                        for (int x = 0; x < expectedWidthBo; x++) {
+                            int expectedPixel = expectedPixelsBo[y * expectedWidthBo + x];
+                            int capturedPixel = capturedPixels[(y+y1) * capturedWidth + (x+x1)];
+
+                            if (expectedPixel != capturedPixel) {
+                                continue a;
+                            }
+                        }
+                    }
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private static boolean  containGold1(Robot robot){
+        BufferedImage screenCapture = robot.createScreenCapture(captureRect);
+        int capturedWidth = screenCapture.getWidth();
+        int capturedHeight = screenCapture.getHeight();
+        int[] capturedPixels = screenCapture.getRGB(0, 0, capturedWidth, capturedHeight, null, 0, capturedWidth);
+        for (int y1 = 0; y1 < capturedHeight; y1++) {
+            a:
+            for (int x1 = 0; x1 < capturedWidth; x1++) {
+                int capturedPixel1 = capturedPixels[y1 * capturedWidth + x1];
+                if (expectedPixelsG1[0] == capturedPixel1) {
+                    for (int y = 0; y < expectedHeightG1; y++) {
+                        for (int x = 0; x < expectedWidthG1; x++) {
+                            int expectedPixel = expectedPixelsG1[y * expectedWidthG1 + x];
+                            int capturedPixel = capturedPixels[(y+y1) * capturedWidth + (x+x1)];
+
+                            if (expectedPixel != capturedPixel) {
+                                continue a;
+                            }
+                        }
+                    }
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private static boolean  containGold(Robot robot){
+        BufferedImage screenCapture = robot.createScreenCapture(captureRect);
+        int capturedWidth = screenCapture.getWidth();
+        int capturedHeight = screenCapture.getHeight();
+        int[] capturedPixels = screenCapture.getRGB(0, 0, capturedWidth, capturedHeight, null, 0, capturedWidth);
+        for (int y1 = 0; y1 < capturedHeight; y1++) {
+            a:
+            for (int x1 = 0; x1 < capturedWidth; x1++) {
+                int capturedPixel1 = capturedPixels[y1 * capturedWidth + x1];
+                if (expectedPixelsG[0] == capturedPixel1) {
+                    for (int y = 0; y < expectedHeightG; y++) {
+                        for (int x = 0; x < expectedWidthG; x++) {
+                            int expectedPixel = expectedPixelsG[y * expectedWidthG + x];
                             int capturedPixel = capturedPixels[(y+y1) * capturedWidth + (x+x1)];
 
                             if (expectedPixel != capturedPixel) {
