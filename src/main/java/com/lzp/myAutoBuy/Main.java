@@ -39,10 +39,10 @@ public class Main {
     private static long  delay = 100;
 
     static {
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-
-        captureRect = new Rectangle(screenSize.width / 9, screenSize.height / 9, screenSize.width / 2, screenSize.height / 2);
-
+        JOptionPane optionPane = new JOptionPane("请确保程序启动前购买窗口已打开！", JOptionPane.INFORMATION_MESSAGE);
+        JDialog dialog = optionPane.createDialog("提示");
+        dialog.setAlwaysOnTop(true);
+        dialog.setVisible(true);
         try {
             BufferedImage expectedImageA = ImageIO.read(new File("./a.png"));
             expectedWidthA = expectedImageA.getWidth();
@@ -71,6 +71,43 @@ public class Main {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        captureRect =generCaptureRect(Toolkit.getDefaultToolkit().getScreenSize());
+        optionPane = new JOptionPane("现在可以把购买窗口关闭了,接下来要定位六个所需坐标", JOptionPane.INFORMATION_MESSAGE);
+        dialog = optionPane.createDialog("提示");
+        dialog.setAlwaysOnTop(true);
+        dialog.setVisible(true);
+    }
+
+    private static Rectangle generCaptureRect(Dimension screenSize){
+        try {
+            BufferedImage screenCapture = new Robot().createScreenCapture(new Rectangle(0,0,screenSize.width/2,
+                    screenSize.height/2));
+            int capturedWidth = screenCapture.getWidth();
+            int capturedHeight = screenCapture.getHeight();
+            int[] capturedPixels = screenCapture.getRGB(0, 0, capturedWidth, capturedHeight, null, 0, capturedWidth);
+            for (int y1 = 0; y1 < capturedHeight; y1++) {
+                a:
+                for (int x1 = 0; x1 < capturedWidth; x1++) {
+                    int capturedPixel1 = capturedPixels[y1 * capturedWidth + x1];
+                    if (expectedPixelsW[0] == capturedPixel1) {
+                        for (int y = 0; y < expectedHeightW; y++) {
+                            for (int x = 0; x < expectedWidthW; x++) {
+                                int expectedPixel = expectedPixelsW[y * expectedWidthW + x];
+                                int capturedPixel = capturedPixels[(y+y1) * capturedWidth + (x+x1)];
+
+                                if (expectedPixel != capturedPixel) {
+                                    continue a;
+                                }
+                            }
+                        }
+                        return new Rectangle(x1, y1, screenSize.width / 12, screenSize.height / 12);
+                    }
+                }
+            }
+
+        }catch (Exception ignored){
+        }
+        return null;
     }
 
     public static void main(String[] args) throws Exception {
@@ -175,19 +212,22 @@ public class Main {
 
 
     private static boolean match(BufferedImage capturedImage) {
-
-        int capturedWidth = capturedImage.getWidth();
-        int capturedHeight = capturedImage.getHeight();
-        int[] capturedPixels = capturedImage.getRGB(0, 0, capturedWidth, capturedHeight, null, 0, capturedWidth);
-        return matchA(capturedWidth, capturedHeight, capturedPixels)
-                || matchB(capturedWidth, capturedHeight, capturedPixels)
+        try {
+            int capturedWidth = capturedImage.getWidth();
+            int capturedHeight = capturedImage.getHeight();
+            int[] capturedPixels = capturedImage.getRGB(0, 0, capturedWidth, capturedHeight, null, 0, capturedWidth);
+            return matchA(capturedWidth, capturedHeight, capturedPixels)
+                    || matchB(capturedWidth, capturedHeight, capturedPixels)
                 /*|| matchC(capturedWidth, capturedHeight, capturedPixels)
                 || matchD(capturedWidth, capturedHeight, capturedPixels)*/;
-
+        }catch (Exception e){
+            //空指针异常,一般只有在客户端卡顿的时候会出现
+            return false;
+        }
     }
 
 
-    private static boolean matchA(int capturedWidth,int capturedHeight,int[] capturedPixels){
+    private static boolean matchA(int capturedWidth, int capturedHeight, int[] capturedPixels) {
         for (int y1 = 0; y1 < capturedHeight; y1++) {
             a:
             for (int x1 = 0; x1 < capturedWidth; x1++) {
@@ -196,7 +236,7 @@ public class Main {
                     for (int y = 0; y < expectedHeightA; y++) {
                         for (int x = 0; x < expectedWidthA; x++) {
                             int expectedPixel = expectedPixelsA[y * expectedWidthA + x];
-                            int capturedPixel = capturedPixels[(y+y1) * capturedWidth + (x+x1)];
+                            int capturedPixel = capturedPixels[(y + y1) * capturedWidth + (x + x1)];
 
                             if (expectedPixel != capturedPixel) {
                                 continue a;
@@ -210,7 +250,7 @@ public class Main {
         return false;
     }
 
-    private static boolean matchB(int capturedWidth,int capturedHeight,int[] capturedPixels){
+    private static boolean matchB(int capturedWidth, int capturedHeight, int[] capturedPixels) {
         for (int y1 = 0; y1 < capturedHeight; y1++) {
             a:
             for (int x1 = 0; x1 < capturedWidth; x1++) {
@@ -219,7 +259,7 @@ public class Main {
                     for (int y = 0; y < expectedHeightB; y++) {
                         for (int x = 0; x < expectedWidthB; x++) {
                             int expectedPixel = expectedPixelsB[y * expectedWidthB + x];
-                            int capturedPixel = capturedPixels[(y+y1) * capturedWidth + (x+x1)];
+                            int capturedPixel = capturedPixels[(y + y1) * capturedWidth + (x + x1)];
 
                             if (expectedPixel != capturedPixel) {
                                 continue a;
@@ -230,6 +270,7 @@ public class Main {
                 }
             }
         }
+
         return false;
     }
 
@@ -242,7 +283,7 @@ public class Main {
                     for (int y = 0; y < expectedHeightC; y++) {
                         for (int x = 0; x < expectedWidthC; x++) {
                             int expectedPixel = expectedPixelsC[y * expectedWidthC + x];
-                            int capturedPixel = capturedPixels[(y+y1) * capturedWidth + (x+x1)];
+                            int capturedPixel = capturedPixels[(y + y1) * capturedWidth + (x + x1)];
 
                             if (expectedPixel != capturedPixel) {
                                 continue a;
@@ -256,7 +297,7 @@ public class Main {
         return false;
     }
 
-    private static boolean matchD(int capturedWidth,int capturedHeight,int[] capturedPixels){
+    private static boolean matchD(int capturedWidth, int capturedHeight, int[] capturedPixels) {
         for (int y1 = 0; y1 < capturedHeight; y1++) {
             a:
             for (int x1 = 0; x1 < capturedWidth; x1++) {
@@ -265,7 +306,7 @@ public class Main {
                     for (int y = 0; y < expectedHeightD; y++) {
                         for (int x = 0; x < expectedWidthD; x++) {
                             int expectedPixel = expectedPixelsD[y * expectedWidthD + x];
-                            int capturedPixel = capturedPixels[(y+y1) * capturedWidth + (x+x1)];
+                            int capturedPixel = capturedPixels[(y + y1) * capturedWidth + (x + x1)];
 
                             if (expectedPixel != capturedPixel) {
                                 continue a;
