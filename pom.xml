@@ -18,7 +18,7 @@
           </descriptorRefs>
           <archive>
             <manifest>
-              <mainClass>com.utstar.Main</mainClass>
+              <mainClass>com.lzp.myAutoBuy.Main</mainClass>
             </manifest>
           </archive>
         </configuration>
