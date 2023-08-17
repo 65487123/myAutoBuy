@@ -157,7 +157,8 @@ public class Main {
             //for (int l=0; l<5000;l++){
             while (true) {
                 BufferedImage screenCapture;
-                do {
+                try {
+                    long now = System.currentTimeMillis();
                     robot.mouseMove((int) points[0].getX(), (int) points[0].getY());
                     mousePressAndRelease(robot);
                     waitUntilBoxAppear(robot);
@@ -169,17 +170,19 @@ public class Main {
                     waitUntilGlod1Appear(robot);
                     robot.mouseMove((int) points[3].getX(), (int) points[3].getY());
                     screenCapture = robot.createScreenCapture(captureRect);
-                } while (!match(screenCapture));
-
-                for (int i = 3; i < points.length; ++i) {
-                    robot.mouseMove((int) points[i].getX(), (int) points[i].getY());
-                    mousePressAndRelease(robot);
-                    if (i == 3 && !waitUntilWindowAppear(robot)) {
-                        break;
+                    if (match(screenCapture)) {
+                        for (int i = 3; i < points.length; ++i) {
+                            robot.mouseMove((int) points[i].getX(), (int) points[i].getY());
+                            mousePressAndRelease(robot);
+                            if (i == 3 && !waitUntilWindowAppear(robot)) {
+                                break;
+                            }
+                        }
+                        Thread.sleep(500L);
                     }
+                    System.out.println(System.currentTimeMillis() - now);
+                } catch (Exception ignored) {
                 }
-
-                Thread.sleep(2000L);
             }
         }
     }
@@ -192,8 +195,6 @@ public class Main {
 
         while(containQueryBox(robot)) {
         }
-
-        System.out.println(System.currentTimeMillis() - now);
         return true;
     }
 
@@ -212,7 +213,7 @@ public class Main {
 
     private static boolean waitUntilBoxAppear(Robot robot) throws InterruptedException {
         long time = System.currentTimeMillis();
-        Thread.sleep(50L);
+        Thread.sleep(10L);
 
         do {
             if (containBox(robot)) {
@@ -236,9 +237,9 @@ public class Main {
     }
 
     private static void mousePressAndRelease(Robot robot) {
-        robot.mousePress(1024);
+        robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
         robot.delay(1);
-        robot.mouseRelease(1024);
+        robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
     }
 
     private static boolean containBuyingWindow(Robot robot) {
@@ -333,24 +334,32 @@ public class Main {
         int capturedWidth = screenCapture.getWidth();
         int capturedHeight = screenCapture.getHeight();
         int[] capturedPixels = screenCapture.getRGB(0, 0, capturedWidth, capturedHeight, null, 0, capturedWidth);
-
-        for(int y1 = 0; y1 < capturedHeight; ++y1) {
-            label42:
-            for(int x1 = 0; x1 < capturedWidth; ++x1) {
-                int capturedPixel1 = capturedPixels[y1 * capturedWidth + x1];
-                if (expectedPixelsG1[0] == capturedPixel1) {
-                    for(int y = 0; y < expectedHeightG1; ++y) {
-                        for(int x = 0; x < expectedWidthG1; ++x) {
-                            int expectedPixel = expectedPixelsG1[y * expectedWidthG1 + x];
-                            int capturedPixel = capturedPixels[(y + y1) * capturedWidth + x + x1];
-                            if (expectedPixel != capturedPixel) {
-                                continue label42;
+        try {
+            for (int y1 = 0; y1 < capturedHeight; ++y1) {
+                label42:
+                for (int x1 = 0; x1 < capturedWidth; ++x1) {
+                    int capturedPixel1 = capturedPixels[y1 * capturedWidth + x1];
+                    if (expectedPixelsG1[0] == capturedPixel1) {
+                        for (int y = 0; y < expectedHeightG1; ++y) {
+                            for (int x = 0; x < expectedWidthG1; ++x) {
+                                int expectedPixel = expectedPixelsG1[y * expectedWidthG1 + x];
+                                int capturedPixel = capturedPixels[(y + y1) * capturedWidth + x + x1];
+                                if (expectedPixel != capturedPixel) {
+                                    continue label42;
+                                }
                             }
                         }
-                    }
 
-                    return true;
+                        return true;
+                    }
                 }
+            }
+        }catch (Exception e){
+            try {
+                System.out.println(e.getMessage());
+                ImageIO.write(screenCapture,"png",new File("test.png"));
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
             }
         }
 
