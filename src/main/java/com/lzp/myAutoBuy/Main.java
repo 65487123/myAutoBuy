@@ -6,7 +6,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.CountDownLatch;
 
 
 public class Main {
@@ -29,10 +29,6 @@ public class Main {
     private static int expectedWidthW;
     private static int expectedHeightW;
     private static int[] expectedPixelsW;
-
-    private static int expectedWidthBo;
-    private static int expectedHeightBo;
-    private static int[] expectedPixelsBo;
 
     private static int expectedWidthG1;
     private static int expectedHeightG1;
@@ -81,11 +77,6 @@ public class Main {
             expectedHeightG1 = expectedImageG1.getHeight();
             expectedPixelsG1 = expectedImageG1.getRGB(0, 0, expectedWidthG1, expectedHeightG1, null, 0, expectedWidthG1);
 
-            BufferedImage expectedImageBo = ImageIO.read(new File("./box.png"));
-            expectedWidthBo = expectedImageBo.getWidth();
-            expectedHeightBo = expectedImageBo.getHeight();
-            expectedPixelsBo = expectedImageBo.getRGB(0, 0, expectedWidthBo, expectedHeightBo, null, 0, expectedWidthBo);
-
             BufferedImage expectedImageQ = ImageIO.read(new File("./querybox.png"));
             expectedWidthQ = expectedImageQ.getWidth();
             expectedHeightQ = expectedImageQ.getHeight();
@@ -99,6 +90,62 @@ public class Main {
         dialog = optionPane.createDialog("提示");
         dialog.setAlwaysOnTop(true);
         dialog.setVisible(true);
+    }
+
+
+    public static void main(String[] args) throws Exception {
+        Robot robot = new Robot();
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        new Thread(() -> {
+            for(int i = 0; i < 6; ++i) {
+                try {
+                    Thread.sleep(800L);
+                } catch (InterruptedException var5) {
+                }
+
+                points[i] = MouseInfo.getPointerInfo().getLocation();
+                JOptionPane optionPane = new JOptionPane("第" + (i + 1) + "个位置已记录！", JOptionPane.INFORMATION_MESSAGE);
+                JDialog dialog = optionPane.createDialog("提示");
+                dialog.setAlwaysOnTop(true);
+                dialog.setVisible(true);
+            }
+            countDownLatch.countDown();
+        }).start();
+        countDownLatch.await();
+
+        //for (int l=0; l<5000;l++){
+        BufferedImage screenCapture;
+
+        while (true) {
+                for (int l = 0; l <10000 ; l++) {
+                    try {
+                        long now = System.currentTimeMillis();
+                        robot.mouseMove((int) points[0].getX(), (int) points[0].getY());
+                        mousePressAndRelease(robot);
+                        //waitUntilBoxAppear(robot);
+                        waitUntilQueryBoxComeAndGone(robot);
+                        robot.mouseMove((int) points[1].getX(), (int) points[1].getY());
+                        mousePressAndRelease(robot);
+                        screenCapture = waitUntilGlod1Appear(robot);
+                        robot.mouseMove((int) points[2].getX(), (int) points[2].getY());
+                        if (match(screenCapture)) {
+                            for (int i = 2; i < points.length - 1; i++) {
+                                robot.mouseMove((int) points[i].getX(), (int) points[i].getY());
+                                mousePressAndRelease(robot);
+                                if (i == 2 && !waitUntilWindowAppear(robot)) {
+                                    break;
+                                }
+                            }
+                        }
+                        robot.mouseMove((int) points[5].getX(), (int) points[5].getY());
+                        mousePressAndRelease(robot);
+                        System.out.println(System.currentTimeMillis() - now);
+                    } catch (Exception ignored) {
+                    }
+                }
+                Thread.sleep(1000);
+                logOutAndLogin(robot);
+            }
     }
 
     private static Rectangle generCaptureRect(Dimension screenSize) {
@@ -133,60 +180,6 @@ public class Main {
         return null;
     }
 
-    public static void main(String[] args) throws Exception {
-        Robot robot = new Robot();
-        new Thread(() -> {
-            for(int i = 0; i < 6; ++i) {
-                try {
-                    Thread.sleep(800L);
-                } catch (InterruptedException var5) {
-                }
-
-                points[i] = MouseInfo.getPointerInfo().getLocation();
-                JOptionPane optionPane = new JOptionPane("第" + (i + 1) + "个位置已记录！", JOptionPane.INFORMATION_MESSAGE);
-                JDialog dialog = optionPane.createDialog("提示");
-                dialog.setAlwaysOnTop(true);
-                dialog.setVisible(true);
-            }
-            synchronized (Main.class) {
-                Main.class.notify();
-            }
-        }).start();
-        synchronized (Main.class) {
-            Main.class.wait();
-            //for (int l=0; l<5000;l++){
-            while (true) {
-                BufferedImage screenCapture;
-                try {
-                    long now = System.currentTimeMillis();
-                    robot.mouseMove((int) points[0].getX(), (int) points[0].getY());
-                    mousePressAndRelease(robot);
-                    waitUntilBoxAppear(robot);
-                    robot.mouseMove((int) points[1].getX(), (int) points[1].getY());
-                    mousePressAndRelease(robot);
-                    waitUntilQueryBoxComeAndGone(robot);
-                    robot.mouseMove((int) points[2].getX(), (int) points[2].getY());
-                    mousePressAndRelease(robot);
-                    waitUntilGlod1Appear(robot);
-                    robot.mouseMove((int) points[3].getX(), (int) points[3].getY());
-                    screenCapture = robot.createScreenCapture(captureRect);
-                    if (match(screenCapture)) {
-                        for (int i = 3; i < points.length; ++i) {
-                            robot.mouseMove((int) points[i].getX(), (int) points[i].getY());
-                            mousePressAndRelease(robot);
-                            if (i == 3 && !waitUntilWindowAppear(robot)) {
-                                break;
-                            }
-                        }
-                        Thread.sleep(500L);
-                    }
-                    System.out.println(System.currentTimeMillis() - now);
-                } catch (Exception ignored) {
-                }
-            }
-        }
-    }
-
     private static boolean waitUntilQueryBoxComeAndGone(Robot robot) throws InterruptedException {
         long now = System.currentTimeMillis();
 
@@ -198,31 +191,19 @@ public class Main {
         return true;
     }
 
-    private static boolean waitUntilGlod1Appear(Robot robot) throws InterruptedException {
+    private static BufferedImage waitUntilGlod1Appear(Robot robot) throws InterruptedException {
+        BufferedImage bufferedImage;
         long time = System.currentTimeMillis();
         Thread.sleep(10L);
 
         do {
-            if (containGold1(robot)) {
-                return true;
+            if ((bufferedImage = containGold1AndGetImg(robot)) != null) {
+                return bufferedImage;
             }
-        } while(System.currentTimeMillis() - time <= 300L);
-
-        return false;
+        } while (System.currentTimeMillis() - time <= 300L);
+        return null;
     }
 
-    private static boolean waitUntilBoxAppear(Robot robot) throws InterruptedException {
-        long time = System.currentTimeMillis();
-        Thread.sleep(10L);
-
-        do {
-            if (containBox(robot)) {
-                return true;
-            }
-        } while(System.currentTimeMillis() - time <= 300L);
-
-        return false;
-    }
 
     private static boolean waitUntilWindowAppear(Robot robot) {
         long time = System.currentTimeMillis();
@@ -271,6 +252,54 @@ public class Main {
         return false;
     }
 
+    private static void logOutAndLogin(Robot robot) throws InterruptedException {
+        robot.keyPress(KeyEvent.VK_ALT);
+        robot.keyPress(KeyEvent.VK_F4);
+        Thread.sleep(500);
+        robot.keyRelease(KeyEvent.VK_F4);
+        robot.keyRelease(KeyEvent.VK_ALT);
+        Thread.sleep(1000);
+        robot.mouseMove((int) points[3].getX() + captureRect.width /8, (int) points[3].getY() + captureRect.height);
+        mousePressAndRelease(robot);
+        Thread.sleep(6000);
+        robot.mouseMove(captureRect.width /8, captureRect.height/2);
+        mousePressAndRelease(robot);
+        mousePressAndRelease(robot);
+        Thread.sleep(5000);
+        robot.mouseMove((int) points[2].getX()+captureRect.width /2, (int) points[2].getY());
+        mousePressAndRelease(robot);
+        Thread.sleep(20000);
+
+
+        robot.keyPress(KeyEvent.VK_ENTER);
+        robot.keyRelease(KeyEvent.VK_ENTER);
+        Thread.sleep(3000);
+        robot.mouseMove((int) points[3].getX() - captureRect.width / 4, (int) points[3].getY() + captureRect.height * 3 / 4);
+        mousePressAndRelease(robot);
+        Thread.sleep(20000);
+
+        robot.mouseMove((int) points[0].getX(), (int) points[0].getY());
+        mousePressAndRelease(robot);
+        Thread.sleep(1000);
+        robot.mouseMove((int) captureRect.getX()+captureRect.width*7/2, (int)captureRect.getY()+captureRect.height);
+        mousePressAndRelease(robot);
+        Thread.sleep(1000);
+        robot.mouseMove((int) captureRect.getX()-captureRect.width, (int)captureRect.getY()+captureRect.height*4);
+        robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+        robot.mouseMove((int) captureRect.getX()-captureRect.width, (int)captureRect.getY());
+        Thread.sleep(1000);
+        robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+        robot.mouseMove((int) captureRect.getX()-captureRect.width, (int)captureRect.getY()+captureRect.height);
+        mousePressAndRelease(robot);
+        Thread.sleep(1000);
+        robot.mouseMove((int) captureRect.getX(), (int)captureRect.getY()+captureRect.height*2);
+        mousePressAndRelease(robot);
+        robot.mouseMove((int) points[5].getX(), (int) points[5].getY());
+        mousePressAndRelease(robot);
+
+
+    }
+
     private static boolean containQueryBox(Robot robot) {
         BufferedImage screenCapture = robot.createScreenCapture(new Rectangle(captureRect.x + captureRect.width / 2, captureRect.y + captureRect.height * 3 / 2, captureRect.width, captureRect.height));
         int capturedWidth = screenCapture.getWidth();
@@ -300,36 +329,9 @@ public class Main {
         return false;
     }
 
-    private static boolean containBox(Robot robot) {
-        BufferedImage screenCapture = robot.createScreenCapture(captureRect);
-        int capturedWidth = screenCapture.getWidth();
-        int capturedHeight = screenCapture.getHeight();
-        int[] capturedPixels = screenCapture.getRGB(0, 0, capturedWidth, capturedHeight, null, 0, capturedWidth);
 
-        for(int y1 = 0; y1 < capturedHeight; ++y1) {
-            label42:
-            for(int x1 = 0; x1 < capturedWidth; ++x1) {
-                int capturedPixel1 = capturedPixels[y1 * capturedWidth + x1];
-                if (expectedPixelsBo[0] == capturedPixel1) {
-                    for(int y = 0; y < expectedHeightBo; ++y) {
-                        for(int x = 0; x < expectedWidthBo; ++x) {
-                            int expectedPixel = expectedPixelsBo[y * expectedWidthBo + x];
-                            int capturedPixel = capturedPixels[(y + y1) * capturedWidth + x + x1];
-                            if (expectedPixel != capturedPixel) {
-                                continue label42;
-                            }
-                        }
-                    }
-
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    private static boolean containGold1(Robot robot) {
+    private static BufferedImage containGold1AndGetImg(Robot robot) {
+        robot.mouseMove((int) points[2].getX(), (int) points[2].getY());
         BufferedImage screenCapture = robot.createScreenCapture(captureRect);
         int capturedWidth = screenCapture.getWidth();
         int capturedHeight = screenCapture.getHeight();
@@ -350,7 +352,7 @@ public class Main {
                             }
                         }
 
-                        return true;
+                        return screenCapture;
                     }
                 }
             }
@@ -363,7 +365,7 @@ public class Main {
             }
         }
 
-        return false;
+        return null;
     }
 
     private static boolean match(BufferedImage capturedImage) {
