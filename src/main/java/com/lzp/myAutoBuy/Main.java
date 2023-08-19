@@ -100,7 +100,7 @@ public class Main {
             for(int i = 0; i < 6; ++i) {
                 try {
                     Thread.sleep(800L);
-                } catch (InterruptedException var5) {
+                } catch (InterruptedException ignored) {
                 }
 
                 points[i] = MouseInfo.getPointerInfo().getLocation();
@@ -116,8 +116,9 @@ public class Main {
         //for (int l=0; l<5000;l++){
         BufferedImage screenCapture;
 
+
         while (true) {
-                for (int l = 0; l <10000 ; l++) {
+                for (int l = 0; l <12000 ; l++) {
                     try {
                         long now = System.currentTimeMillis();
                         robot.mouseMove((int) points[0].getX(), (int) points[0].getY());
@@ -278,6 +279,22 @@ public class Main {
         mousePressAndRelease(robot);
         Thread.sleep(20000);
 
+
+        robot.keyPress(KeyEvent.VK_ESCAPE);
+        Thread.sleep(20);
+        robot.keyRelease(KeyEvent.VK_ESCAPE);
+
+        robot.keyPress(KeyEvent.VK_ESCAPE);
+        Thread.sleep(20);
+        robot.keyRelease(KeyEvent.VK_ESCAPE);
+
+        robot.keyPress(KeyEvent.VK_ESCAPE);
+        Thread.sleep(20);
+        robot.keyRelease(KeyEvent.VK_ESCAPE);
+
+        robot.keyPress(KeyEvent.VK_ESCAPE);
+        Thread.sleep(20);
+        robot.keyRelease(KeyEvent.VK_ESCAPE);
         robot.mouseMove((int) points[0].getX(), (int) points[0].getY());
         mousePressAndRelease(robot);
         Thread.sleep(1000);
@@ -373,8 +390,10 @@ public class Main {
             int capturedWidth = capturedImage.getWidth();
             int capturedHeight = capturedImage.getHeight();
             int[] capturedPixels = capturedImage.getRGB(0, 0, capturedWidth, capturedHeight, null, 0, capturedWidth);
-            return matchA(capturedWidth, capturedHeight, capturedPixels) || matchB(capturedWidth, capturedHeight, capturedPixels);
+            return matchA(capturedWidth, capturedHeight, capturedPixels) || matchB(capturedWidth, capturedHeight, capturedPixels)
+                    || matchC(capturedWidth, capturedHeight, capturedPixels);
         } catch (Exception var4) {
+
             return false;
         }
     }
