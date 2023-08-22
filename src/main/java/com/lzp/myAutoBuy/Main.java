@@ -30,9 +30,6 @@ public class Main {
     private static int expectedHeightW;
     private static int[] expectedPixelsW;
 
-    private static int expectedWidthG1;
-    private static int expectedHeightG1;
-    private static int[] expectedPixelsG1;
 
     private static int expectedWidthQ;
     private static int expectedHeightQ;
@@ -74,10 +71,6 @@ public class Main {
             expectedHeightW = expectedImageW.getHeight();
             expectedPixelsW = expectedImageW.getRGB(0, 0, expectedWidthW, expectedHeightW, null, 0, expectedWidthW);
 
-            BufferedImage expectedImageG1 = ImageIO.read(new File("./gold1.png"));
-            expectedWidthG1 = expectedImageG1.getWidth();
-            expectedHeightG1 = expectedImageG1.getHeight();
-            expectedPixelsG1 = expectedImageG1.getRGB(0, 0, expectedWidthG1, expectedHeightG1, null, 0, expectedWidthG1);
 
             BufferedImage expectedImageQ = ImageIO.read(new File("./querybox.png"));
             expectedWidthQ = expectedImageQ.getWidth();
@@ -117,7 +110,6 @@ public class Main {
         countDownLatch.await();
 
         //for (int l=0; l<5000;l++){
-        BufferedImage screenCapture;
 
 
         while (true) {
@@ -127,12 +119,8 @@ public class Main {
                         robot.mouseMove((int) points[0].getX(), (int) points[0].getY());
                         mousePressAndRelease(robot);
                         waitUntilQueryBoxComeAndGone(robot);
-                        robot.mouseMove((int) points[1].getX(), (int) points[1].getY());
-                        mousePressAndRelease(robot);
-                        screenCapture = waitUntilGlod1Appear(robot);
-                        robot.mouseMove((int) points[2].getX(), (int) points[2].getY());
-                        if (match(screenCapture)) {
-                            for (int i = 2; i < points.length - 1; i++) {
+                        if (match(robot.createScreenCapture(captureRect))) {
+                            for (int i = 1; i < points.length - 1; i++) {
                                 robot.mouseMove((int) points[i].getX(), (int) points[i].getY());
                                 mousePressAndRelease(robot);
                                 if (i == 2 && !waitUntilWindowAppear(robot)) {
@@ -195,18 +183,7 @@ public class Main {
         return true;
     }
 
-    private static BufferedImage waitUntilGlod1Appear(Robot robot) throws InterruptedException {
-        BufferedImage bufferedImage;
-        long time = System.currentTimeMillis();
-        Thread.sleep(5L);
 
-        do {
-            if ((bufferedImage = containGold1AndGetImg(robot)) != null) {
-                return bufferedImage;
-            }
-        } while (System.currentTimeMillis() - time <= 300L);
-        return null;
-    }
 
 
     private static boolean waitUntilWindowAppear(Robot robot) {
@@ -332,12 +309,18 @@ public class Main {
         int[] capturedPixels = screenCapture.getRGB(0, 0, capturedWidth, capturedHeight, null, 0, capturedWidth);
 
         for(int y1 = 0; y1 < capturedHeight; ++y1) {
+            if ((capturedHeight - y1) <= expectedHeightQ){
+                break ;
+            }
             label42:
-            for(int x1 = 0; x1 < capturedWidth; ++x1) {
+            for (int x1 = 0; x1 < capturedWidth; ++x1) {
+                if ((capturedWidth - x1) <= expectedWidthQ){
+                    break ;
+                }
                 int capturedPixel1 = capturedPixels[y1 * capturedWidth + x1];
                 if (expectedPixelsQ[0] == capturedPixel1) {
-                    for(int y = 0; y < expectedHeightQ; ++y) {
-                        for(int x = 0; x < expectedWidthQ; ++x) {
+                    for (int y = 0; y < expectedHeightQ; ++y) {
+                        for (int x = 0; x < expectedWidthQ; ++x) {
                             if (expectedPixelsQ[y * expectedWidthQ + x] != capturedPixels[(y + y1) * capturedWidth + x + x1]) {
                                 continue label42;
                             }
@@ -353,42 +336,6 @@ public class Main {
     }
 
 
-    private static BufferedImage containGold1AndGetImg(Robot robot) {
-        robot.mouseMove((int) points[2].getX(), (int) points[2].getY());
-        BufferedImage screenCapture = robot.createScreenCapture(captureRect);
-        int capturedWidth = screenCapture.getWidth();
-        int capturedHeight = screenCapture.getHeight();
-        int[] capturedPixels = screenCapture.getRGB(0, 0, capturedWidth, capturedHeight, null, 0, capturedWidth);
-        try {
-            for (int y1 = 0; y1 < capturedHeight; ++y1) {
-                label42:
-                for (int x1 = 0; x1 < capturedWidth; ++x1) {
-                    int capturedPixel1 = capturedPixels[y1 * capturedWidth + x1];
-                    if (expectedPixelsG1[0] == capturedPixel1) {
-                        for (int y = 0; y < expectedHeightG1; ++y) {
-                            for (int x = 0; x < expectedWidthG1; ++x) {
-                                if (expectedPixelsG1[y * expectedWidthG1 + x] != capturedPixels[(y + y1) * capturedWidth + x + x1]) {
-                                    continue label42;
-                                }
-                            }
-                        }
-
-                        return screenCapture;
-                    }
-                }
-            }
-        }catch (Exception e){
-            try {
-                System.out.println(e.getMessage());
-                ImageIO.write(screenCapture,"png",new File("test.png"));
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
-        }
-
-        return null;
-    }
-
     private static boolean match(BufferedImage capturedImage) {
         try {
             int capturedWidth = capturedImage.getWidth();
@@ -396,20 +343,27 @@ public class Main {
             int[] capturedPixels = capturedImage.getRGB(0, 0, capturedWidth, capturedHeight, null, 0, capturedWidth);
             return matchA(capturedWidth, capturedHeight, capturedPixels) || matchB(capturedWidth, capturedHeight, capturedPixels)
                     || matchC(capturedWidth, capturedHeight, capturedPixels);
-        } catch (Exception var4) {
+        } catch (Exception e) {
 
+            System.out.println(e.getMessage());
             return false;
         }
     }
 
     private static boolean matchA(int capturedWidth, int capturedHeight, int[] capturedPixels) {
         for(int y1 = 0; y1 < capturedHeight; ++y1) {
+            if ((capturedHeight - y1) <= expectedHeightA){
+                break ;
+            }
             label42:
-            for(int x1 = 0; x1 < capturedWidth; ++x1) {
+            for (int x1 = 0; x1 < capturedWidth; ++x1) {
+                if ((capturedWidth - x1) <= expectedWidthA){
+                    break ;
+                }
                 int capturedPixel1 = capturedPixels[y1 * capturedWidth + x1];
-                if (expectedPixelsA[0] == capturedPixel1) {
-                    for(int y = 0; y < expectedHeightA; ++y) {
-                        for(int x = 0; x < expectedWidthA; ++x) {
+                if (expectedPixelsA[0] == capturedPixel1 ) {
+                    for (int y = 0; y < expectedHeightA; ++y) {
+                        for (int x = 0; x < expectedWidthA; ++x) {
                             if (expectedPixelsA[y * expectedWidthA + x] != capturedPixels[(y + y1) * capturedWidth + x + x1]) {
                                 continue label42;
                             }
@@ -426,12 +380,18 @@ public class Main {
 
     private static boolean matchB(int capturedWidth, int capturedHeight, int[] capturedPixels) {
         for(int y1 = 0; y1 < capturedHeight; ++y1) {
+            if ((capturedHeight - y1) <= expectedHeightB){
+                break ;
+            }
             label42:
             for(int x1 = 0; x1 < capturedWidth; ++x1) {
+                if ((capturedWidth - x1) <= expectedWidthB){
+                    break ;
+                }
                 int capturedPixel1 = capturedPixels[y1 * capturedWidth + x1];
-                if (expectedPixelsB[0] == capturedPixel1) {
-                    for(int y = 0; y < expectedHeightB; ++y) {
-                        for(int x = 0; x < expectedWidthB; ++x) {
+                if (expectedPixelsB[0] == capturedPixel1 ) {
+                    for (int y = 0; y < expectedHeightB; ++y) {
+                        for (int x = 0; x < expectedWidthB; ++x) {
                             if (expectedPixelsB[y * expectedWidthB + x] != capturedPixels[(y + y1) * capturedWidth + x + x1]) {
                                 continue label42;
                             }
@@ -448,12 +408,18 @@ public class Main {
 
     private static boolean matchC(int capturedWidth, int capturedHeight, int[] capturedPixels) {
         for(int y1 = 0; y1 < capturedHeight; ++y1) {
+            if ((capturedHeight - y1) <= expectedHeightC){
+                break ;
+            }
             label42:
-            for(int x1 = 0; x1 < capturedWidth; ++x1) {
+            for (int x1 = 0; x1 < capturedWidth; ++x1) {
+                if ((capturedWidth - x1) <= expectedWidthC){
+                    break ;
+                }
                 int capturedPixel1 = capturedPixels[y1 * capturedWidth + x1];
-                if (expectedPixelsC[0] == capturedPixel1) {
-                    for(int y = 0; y < expectedHeightC; ++y) {
-                        for(int x = 0; x < expectedWidthC; ++x) {
+                if (expectedPixelsC[0] == capturedPixel1 ) {
+                    for (int y = 0; y < expectedHeightC; ++y) {
+                        for (int x = 0; x < expectedWidthC; ++x) {
                             if (expectedPixelsC[y * expectedWidthC + x] != capturedPixels[(y + y1) * capturedWidth + x + x1]) {
                                 continue label42;
                             }
@@ -470,12 +436,18 @@ public class Main {
 
     private static boolean matchD(int capturedWidth, int capturedHeight, int[] capturedPixels) {
         for(int y1 = 0; y1 < capturedHeight; ++y1) {
+            if ((capturedHeight - y1) <= expectedHeightD){
+                break ;
+            }
             label42:
-            for(int x1 = 0; x1 < capturedWidth; ++x1) {
+            for (int x1 = 0; x1 < capturedWidth; ++x1) {
+                if ((capturedWidth - x1) <= expectedWidthD){
+                    break ;
+                }
                 int capturedPixel1 = capturedPixels[y1 * capturedWidth + x1];
-                if (expectedPixelsD[0] == capturedPixel1) {
-                    for(int y = 0; y < expectedHeightD; ++y) {
-                        for(int x = 0; x < expectedWidthD; ++x) {
+                if (expectedPixelsD[0] == capturedPixel1 ) {
+                    for (int y = 0; y < expectedHeightD; ++y) {
+                        for (int x = 0; x < expectedWidthD; ++x) {
                             int expectedPixel = expectedPixelsD[y * expectedWidthD + x];
                             int capturedPixel = capturedPixels[(y + y1) * capturedWidth + x + x1];
                             if (expectedPixel != capturedPixel) {
