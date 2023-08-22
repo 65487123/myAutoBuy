@@ -38,6 +38,8 @@ public class Main {
     private static int expectedHeightQ;
     private static int[] expectedPixelsQ;
     private static Rectangle captureRect;
+
+    private static Rectangle qbRect;
     private static Point[] points = new Point[6];
 
     static {
@@ -86,6 +88,7 @@ public class Main {
         }
 
         captureRect = generCaptureRect(Toolkit.getDefaultToolkit().getScreenSize());
+        qbRect = new Rectangle(captureRect.x + captureRect.width / 2, captureRect.y + captureRect.height * 3 / 2, captureRect.width, captureRect.height);
         optionPane = new JOptionPane("现在可以把购买窗口关闭了,接下来要定位六个所需坐标", JOptionPane.INFORMATION_MESSAGE);
         dialog = optionPane.createDialog("提示");
         dialog.setAlwaysOnTop(true);
@@ -123,7 +126,6 @@ public class Main {
                         long now = System.currentTimeMillis();
                         robot.mouseMove((int) points[0].getX(), (int) points[0].getY());
                         mousePressAndRelease(robot);
-                        //waitUntilBoxAppear(robot);
                         waitUntilQueryBoxComeAndGone(robot);
                         robot.mouseMove((int) points[1].getX(), (int) points[1].getY());
                         mousePressAndRelease(robot);
@@ -137,6 +139,7 @@ public class Main {
                                     break;
                                 }
                             }
+                            Thread.sleep(700);
                         }
                         robot.mouseMove((int) points[5].getX(), (int) points[5].getY());
                         mousePressAndRelease(robot);
@@ -178,7 +181,7 @@ public class Main {
         } catch (Exception var12) {
         }
 
-        return null;
+        throw new RuntimeException("generCaptureRect failed");
     }
 
     private static boolean waitUntilQueryBoxComeAndGone(Robot robot) throws InterruptedException {
@@ -195,7 +198,7 @@ public class Main {
     private static BufferedImage waitUntilGlod1Appear(Robot robot) throws InterruptedException {
         BufferedImage bufferedImage;
         long time = System.currentTimeMillis();
-        Thread.sleep(10L);
+        Thread.sleep(5L);
 
         do {
             if ((bufferedImage = containGold1AndGetImg(robot)) != null) {
@@ -208,7 +211,7 @@ public class Main {
 
     private static boolean waitUntilWindowAppear(Robot robot) {
         long time = System.currentTimeMillis();
-
+        robot.delay(1);
         do {
             if (containBuyingWindow(robot)) {
                 return true;
@@ -254,6 +257,7 @@ public class Main {
     }
 
     private static void logOutAndLogin(Robot robot) throws InterruptedException {
+        escape(robot);
         robot.keyPress(KeyEvent.VK_ALT);
         robot.keyPress(KeyEvent.VK_F4);
         Thread.sleep(500);
@@ -280,21 +284,7 @@ public class Main {
         Thread.sleep(20000);
 
 
-        robot.keyPress(KeyEvent.VK_ESCAPE);
-        Thread.sleep(20);
-        robot.keyRelease(KeyEvent.VK_ESCAPE);
-
-        robot.keyPress(KeyEvent.VK_ESCAPE);
-        Thread.sleep(20);
-        robot.keyRelease(KeyEvent.VK_ESCAPE);
-
-        robot.keyPress(KeyEvent.VK_ESCAPE);
-        Thread.sleep(20);
-        robot.keyRelease(KeyEvent.VK_ESCAPE);
-
-        robot.keyPress(KeyEvent.VK_ESCAPE);
-        Thread.sleep(20);
-        robot.keyRelease(KeyEvent.VK_ESCAPE);
+        escape(robot);
         robot.mouseMove((int) points[0].getX(), (int) points[0].getY());
         mousePressAndRelease(robot);
         Thread.sleep(1000);
@@ -317,8 +307,26 @@ public class Main {
 
     }
 
+    private static void escape(Robot robot) throws InterruptedException {
+        robot.keyPress(KeyEvent.VK_ESCAPE);
+        Thread.sleep(20);
+        robot.keyRelease(KeyEvent.VK_ESCAPE);
+
+        robot.keyPress(KeyEvent.VK_ESCAPE);
+        Thread.sleep(20);
+        robot.keyRelease(KeyEvent.VK_ESCAPE);
+
+        robot.keyPress(KeyEvent.VK_ESCAPE);
+        Thread.sleep(20);
+        robot.keyRelease(KeyEvent.VK_ESCAPE);
+
+        robot.keyPress(KeyEvent.VK_ESCAPE);
+        Thread.sleep(20);
+        robot.keyRelease(KeyEvent.VK_ESCAPE);
+    }
+
     private static boolean containQueryBox(Robot robot) {
-        BufferedImage screenCapture = robot.createScreenCapture(new Rectangle(captureRect.x + captureRect.width / 2, captureRect.y + captureRect.height * 3 / 2, captureRect.width, captureRect.height));
+        BufferedImage screenCapture = robot.createScreenCapture(qbRect);
         int capturedWidth = screenCapture.getWidth();
         int capturedHeight = screenCapture.getHeight();
         int[] capturedPixels = screenCapture.getRGB(0, 0, capturedWidth, capturedHeight, null, 0, capturedWidth);
@@ -330,9 +338,7 @@ public class Main {
                 if (expectedPixelsQ[0] == capturedPixel1) {
                     for(int y = 0; y < expectedHeightQ; ++y) {
                         for(int x = 0; x < expectedWidthQ; ++x) {
-                            int expectedPixel = expectedPixelsQ[y * expectedWidthQ + x];
-                            int capturedPixel = capturedPixels[(y + y1) * capturedWidth + x + x1];
-                            if (expectedPixel != capturedPixel) {
+                            if (expectedPixelsQ[y * expectedWidthQ + x] != capturedPixels[(y + y1) * capturedWidth + x + x1]) {
                                 continue label42;
                             }
                         }
@@ -361,9 +367,7 @@ public class Main {
                     if (expectedPixelsG1[0] == capturedPixel1) {
                         for (int y = 0; y < expectedHeightG1; ++y) {
                             for (int x = 0; x < expectedWidthG1; ++x) {
-                                int expectedPixel = expectedPixelsG1[y * expectedWidthG1 + x];
-                                int capturedPixel = capturedPixels[(y + y1) * capturedWidth + x + x1];
-                                if (expectedPixel != capturedPixel) {
+                                if (expectedPixelsG1[y * expectedWidthG1 + x] != capturedPixels[(y + y1) * capturedWidth + x + x1]) {
                                     continue label42;
                                 }
                             }
@@ -406,9 +410,7 @@ public class Main {
                 if (expectedPixelsA[0] == capturedPixel1) {
                     for(int y = 0; y < expectedHeightA; ++y) {
                         for(int x = 0; x < expectedWidthA; ++x) {
-                            int expectedPixel = expectedPixelsA[y * expectedWidthA + x];
-                            int capturedPixel = capturedPixels[(y + y1) * capturedWidth + x + x1];
-                            if (expectedPixel != capturedPixel) {
+                            if (expectedPixelsA[y * expectedWidthA + x] != capturedPixels[(y + y1) * capturedWidth + x + x1]) {
                                 continue label42;
                             }
                         }
@@ -430,9 +432,7 @@ public class Main {
                 if (expectedPixelsB[0] == capturedPixel1) {
                     for(int y = 0; y < expectedHeightB; ++y) {
                         for(int x = 0; x < expectedWidthB; ++x) {
-                            int expectedPixel = expectedPixelsB[y * expectedWidthB + x];
-                            int capturedPixel = capturedPixels[(y + y1) * capturedWidth + x + x1];
-                            if (expectedPixel != capturedPixel) {
+                            if (expectedPixelsB[y * expectedWidthB + x] != capturedPixels[(y + y1) * capturedWidth + x + x1]) {
                                 continue label42;
                             }
                         }
@@ -454,9 +454,7 @@ public class Main {
                 if (expectedPixelsC[0] == capturedPixel1) {
                     for(int y = 0; y < expectedHeightC; ++y) {
                         for(int x = 0; x < expectedWidthC; ++x) {
-                            int expectedPixel = expectedPixelsC[y * expectedWidthC + x];
-                            int capturedPixel = capturedPixels[(y + y1) * capturedWidth + x + x1];
-                            if (expectedPixel != capturedPixel) {
+                            if (expectedPixelsC[y * expectedWidthC + x] != capturedPixels[(y + y1) * capturedWidth + x + x1]) {
                                 continue label42;
                             }
                         }
