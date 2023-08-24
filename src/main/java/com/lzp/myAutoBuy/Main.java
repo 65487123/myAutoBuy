@@ -127,7 +127,7 @@ public class Main {
                                     break;
                                 }
                             }
-                            Thread.sleep(700);
+                            Thread.sleep(200);
                         }
                         robot.mouseMove((int) points[5].getX(), (int) points[5].getY());
                         mousePressAndRelease(robot);
@@ -172,15 +172,18 @@ public class Main {
         throw new RuntimeException("generCaptureRect failed");
     }
 
-    private static boolean waitUntilQueryBoxComeAndGone(Robot robot) throws InterruptedException {
+    private static void waitUntilQueryBoxComeAndGone(Robot robot) throws InterruptedException {
         long now = System.currentTimeMillis();
 
-        while(!containQueryBox(robot) && System.currentTimeMillis() - now <= 200L) {
+        while(!containQueryBox(robot)) {
+            if (System.currentTimeMillis() - now > 150L){
+                System.out.println("wait Box timeout");
+                break;
+            }
         }
 
         while(containQueryBox(robot)) {
         }
-        return true;
     }
 
 
@@ -342,7 +345,7 @@ public class Main {
             int capturedHeight = capturedImage.getHeight();
             int[] capturedPixels = capturedImage.getRGB(0, 0, capturedWidth, capturedHeight, null, 0, capturedWidth);
             return matchA(capturedWidth, capturedHeight, capturedPixels) || matchB(capturedWidth, capturedHeight, capturedPixels)
-                    || matchC(capturedWidth, capturedHeight, capturedPixels);
+                    /*|| matchC(capturedWidth, capturedHeight, capturedPixels)*/;
         } catch (Exception e) {
 
             System.out.println(e.getMessage());
