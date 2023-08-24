@@ -5,7 +5,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
+import java.awt.peer.RobotPeer;
 import java.io.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.concurrent.CountDownLatch;
 
 
@@ -36,6 +40,11 @@ public class Main {
     private static int[] expectedPixelsQ;
     private static Rectangle captureRect;
 
+
+    private static int[] qbRectArray;
+    private static int[] captureRectArray;
+
+    private static Method method;
     private static Rectangle qbRect;
     private static Point[] points = new Point[6];
 
@@ -81,8 +90,11 @@ public class Main {
         }
 
         captureRect = generCaptureRect(Toolkit.getDefaultToolkit().getScreenSize());
-        qbRect = new Rectangle(captureRect.x + captureRect.width / 2 + captureRect.width / 11, captureRect.y + captureRect.height * 3 / 2
-                +captureRect.height/4, captureRect.width/3, captureRect.height/2);
+        qbRect = new Rectangle(captureRect.x + captureRect.width , captureRect.y + captureRect.height * 2
+                , captureRect.width / 3, captureRect.height / 2);
+        qbRectArray = new int[qbRect.width * qbRect.height];
+        captureRectArray = new int[captureRect.width * captureRect.height];
+
         optionPane = new JOptionPane("现在可以把购买窗口关闭了,接下来要定位六个所需坐标", JOptionPane.INFORMATION_MESSAGE);
         dialog = optionPane.createDialog("提示");
         dialog.setAlwaysOnTop(true);
@@ -92,6 +104,9 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
         Robot robot = new Robot();
+        RobotPeer robotPeer = getRobotPeer(robot);
+        method = robotPeer.getClass().getDeclaredMethod("getRGBPixels",int.class,int.class,int.class,int.class,int[].class);
+        method.setAccessible(true);
         CountDownLatch countDownLatch = new CountDownLatch(1);
         new Thread(() -> {
             for(int i = 0; i < 6; ++i) {
@@ -119,12 +134,13 @@ public class Main {
                         long now = System.currentTimeMillis();
                         robot.mouseMove((int) points[0].getX(), (int) points[0].getY());
                         mousePressAndRelease(robot);
-                        waitUntilQueryBoxComeAndGone(robot);
-                        if (match(robot.createScreenCapture(captureRect))) {
+                        waitUntilQueryBoxComeAndGone(robotPeer);
+                        method.invoke(robotPeer,captureRect.x,captureRect.y,captureRect.width,captureRect.height,captureRectArray);
+                        if (match()) {
                             for (int i = 1; i < points.length - 1; i++) {
                                 robot.mouseMove((int) points[i].getX(), (int) points[i].getY());
                                 mousePressAndRelease(robot);
-                                if (i == 2 && !waitUntilWindowAppear(robot)) {
+                                if (i == 2 && !waitUntilWindowAppear(robotPeer)) {
                                     break;
                                 }
                             }
@@ -139,6 +155,16 @@ public class Main {
                 Thread.sleep(1000);
                 logOutAndLogin(robot);
             }
+    }
+
+    private void catchSnapshot(){
+
+    }
+
+    private static RobotPeer getRobotPeer(Robot robot) throws NoSuchFieldException, IllegalAccessException {
+        Field peerField = robot.getClass().getDeclaredField("peer");
+        peerField.setAccessible(true);
+        return (RobotPeer) peerField.get(robot);
     }
 
     private static Rectangle generCaptureRect(Dimension screenSize) {
@@ -163,7 +189,7 @@ public class Main {
                             }
                         }
 
-                        return new Rectangle(x1, y1, screenSize.width / 12, screenSize.height / 12);
+                        return new Rectangle(x1, y1, screenSize.width / 22, screenSize.height / 13);
                     }
                 }
             }
@@ -173,7 +199,7 @@ public class Main {
         throw new RuntimeException("generCaptureRect failed");
     }
 
-    private static void waitUntilQueryBoxComeAndGone(Robot robot) throws InterruptedException {
+    private static void waitUntilQueryBoxComeAndGone(RobotPeer robot) throws InvocationTargetException, IllegalAccessException {
         long now = System.currentTimeMillis();
 
         while(!containQueryBox(robot)) {
@@ -185,15 +211,14 @@ public class Main {
 
         while(containQueryBox(robot)) {
         }
-        System.out.println("come and gone last "+(System.currentTimeMillis()-now));
     }
 
 
 
 
-    private static boolean waitUntilWindowAppear(Robot robot) {
+    private static boolean waitUntilWindowAppear(RobotPeer robot) throws InterruptedException {
         long time = System.currentTimeMillis();
-        robot.delay(1);
+        Thread.sleep(1);
         do {
             if (containBuyingWindow(robot)) {
                 return true;
@@ -209,21 +234,19 @@ public class Main {
         robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
     }
 
-    private static boolean containBuyingWindow(Robot robot) {
-        BufferedImage screenCapture = robot.createScreenCapture(captureRect);
-        int capturedWidth = screenCapture.getWidth();
-        int capturedHeight = screenCapture.getHeight();
-        int[] capturedPixels = screenCapture.getRGB(0, 0, capturedWidth, capturedHeight, null, 0, capturedWidth);
+    private static boolean containBuyingWindow(RobotPeer robot) {
 
-        for(int y1 = 0; y1 < capturedHeight; ++y1) {
+        int[] capturedPixels = robot.getRGBPixels(captureRect);
+
+        for(int y1 = 0; y1 < captureRect.height; ++y1) {
             label42:
-            for(int x1 = 0; x1 < capturedWidth; ++x1) {
-                int capturedPixel1 = capturedPixels[y1 * capturedWidth + x1];
+            for(int x1 = 0; x1 < captureRect.width; ++x1) {
+                int capturedPixel1 = capturedPixels[y1 * captureRect.width + x1];
                 if (expectedPixelsW[0] == capturedPixel1) {
                     for(int y = 0; y < expectedHeightW; ++y) {
                         for(int x = 0; x < expectedWidthW; ++x) {
                             int expectedPixel = expectedPixelsW[y * expectedWidthW + x];
-                            int capturedPixel = capturedPixels[(y + y1) * capturedWidth + x + x1];
+                            int capturedPixel = capturedPixels[(y + y1) * captureRect.width + x + x1];
                             if (expectedPixel != capturedPixel) {
                                 continue label42;
                             }
@@ -307,28 +330,22 @@ public class Main {
         robot.keyRelease(KeyEvent.VK_ESCAPE);
     }
 
-    private static boolean containQueryBox(Robot robot) {
-        long now = System.currentTimeMillis();
-        BufferedImage screenCapture = robot.createScreenCapture(qbRect);
-        System.out.println("catch snapshot:"+(System.currentTimeMillis()-now));
-        int capturedWidth = screenCapture.getWidth();
-        int capturedHeight = screenCapture.getHeight();
-        int[] capturedPixels = screenCapture.getRGB(0, 0, capturedWidth, capturedHeight, null, 0, capturedWidth);
-
-        for(int y1 = 0; y1 < capturedHeight; ++y1) {
-            if ((capturedHeight - y1) <= expectedHeightQ){
+    private static boolean containQueryBox(RobotPeer robot) throws InvocationTargetException, IllegalAccessException {
+        method.invoke(robot,qbRect.x,qbRect.y,qbRect.width,qbRect.height,qbRectArray);
+        for(int y1 = 0; y1 < qbRect.height; ++y1) {
+            if ((qbRect.height - y1) <= expectedHeightQ){
                 break ;
             }
             label42:
-            for (int x1 = 0; x1 < capturedWidth; ++x1) {
-                if ((capturedWidth - x1) <= expectedWidthQ){
+            for (int x1 = 0; x1 < qbRect.width; ++x1) {
+                if ((qbRect.width - x1) <= expectedWidthQ){
                     break ;
                 }
-                int capturedPixel1 = capturedPixels[y1 * capturedWidth + x1];
+                int capturedPixel1 = qbRectArray[y1 * qbRect.width + x1];
                 if (expectedPixelsQ[0] == capturedPixel1) {
                     for (int y = 0; y < expectedHeightQ; ++y) {
                         for (int x = 0; x < expectedWidthQ; ++x) {
-                            if (expectedPixelsQ[y * expectedWidthQ + x] != capturedPixels[(y + y1) * capturedWidth + x + x1]) {
+                            if (expectedPixelsQ[y * expectedWidthQ + x] != qbRectArray[(y + y1) * qbRect.width + x + x1]) {
                                 continue label42;
                             }
                         }
@@ -343,13 +360,10 @@ public class Main {
     }
 
 
-    private static boolean match(BufferedImage capturedImage) {
+    private static boolean match() {
         try {
-            int capturedWidth = capturedImage.getWidth();
-            int capturedHeight = capturedImage.getHeight();
-            int[] capturedPixels = capturedImage.getRGB(0, 0, capturedWidth, capturedHeight, null, 0, capturedWidth);
-            return matchA(capturedWidth, capturedHeight, capturedPixels) || matchB(capturedWidth, capturedHeight, capturedPixels)
-                    /*|| matchC(capturedWidth, capturedHeight, capturedPixels)*/;
+            return matchA(captureRect.width, captureRect.height, captureRectArray) || matchB(captureRect.width, captureRect.height, captureRectArray)
+                    /*|| matchC(captureRect.width, captureRect.height, captureRectArray)*/;
         } catch (Exception e) {
 
             System.out.println(e.getMessage());
