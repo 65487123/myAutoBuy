@@ -81,7 +81,8 @@ public class Main {
         }
 
         captureRect = generCaptureRect(Toolkit.getDefaultToolkit().getScreenSize());
-        qbRect = new Rectangle(captureRect.x + captureRect.width / 2, captureRect.y + captureRect.height * 3 / 2, captureRect.width, captureRect.height);
+        qbRect = new Rectangle(captureRect.x + captureRect.width / 2 + captureRect.width / 11, captureRect.y + captureRect.height * 3 / 2
+                +captureRect.height/4, captureRect.width/3, captureRect.height/2);
         optionPane = new JOptionPane("现在可以把购买窗口关闭了,接下来要定位六个所需坐标", JOptionPane.INFORMATION_MESSAGE);
         dialog = optionPane.createDialog("提示");
         dialog.setAlwaysOnTop(true);
@@ -184,6 +185,7 @@ public class Main {
 
         while(containQueryBox(robot)) {
         }
+        System.out.println("come and gone last "+(System.currentTimeMillis()-now));
     }
 
 
@@ -306,7 +308,9 @@ public class Main {
     }
 
     private static boolean containQueryBox(Robot robot) {
+        long now = System.currentTimeMillis();
         BufferedImage screenCapture = robot.createScreenCapture(qbRect);
+        System.out.println("catch snapshot:"+(System.currentTimeMillis()-now));
         int capturedWidth = screenCapture.getWidth();
         int capturedHeight = screenCapture.getHeight();
         int[] capturedPixels = screenCapture.getRGB(0, 0, capturedWidth, capturedHeight, null, 0, capturedWidth);
