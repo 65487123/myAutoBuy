@@ -11,6 +11,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 public class Main {
@@ -46,8 +47,9 @@ public class Main {
 
     private static Method method;
     private static Rectangle qbRect;
-    private static Point[] points = new Point[6];
+    private static Point[] points = new Point[5];
 
+    private static AtomicInteger timeoutCount = new AtomicInteger();
     static {
         JOptionPane optionPane = new JOptionPane("请确保程序启动前购买窗口已打开！", JOptionPane.INFORMATION_MESSAGE);
         JDialog dialog = optionPane.createDialog("提示");
@@ -95,7 +97,7 @@ public class Main {
         qbRectArray = new int[qbRect.width * qbRect.height];
         captureRectArray = new int[captureRect.width * captureRect.height];
 
-        optionPane = new JOptionPane("现在可以把购买窗口关闭了,接下来要定位六个所需坐标", JOptionPane.INFORMATION_MESSAGE);
+        optionPane = new JOptionPane("现在可以把购买窗口关闭了,接下来要定位5个所需坐标", JOptionPane.INFORMATION_MESSAGE);
         dialog = optionPane.createDialog("提示");
         dialog.setAlwaysOnTop(true);
         dialog.setVisible(true);
@@ -109,7 +111,7 @@ public class Main {
         method.setAccessible(true);
         CountDownLatch countDownLatch = new CountDownLatch(1);
         new Thread(() -> {
-            for(int i = 0; i < 6; ++i) {
+            for(int i = 0; i < 5; ++i) {
                 try {
                     Thread.sleep(800L);
                 } catch (InterruptedException ignored) {
@@ -132,21 +134,20 @@ public class Main {
                 for (int l = 0; l <12000 ; l++) {
                     try {
                         long now = System.currentTimeMillis();
-                        robot.mouseMove((int) points[0].getX(), (int) points[0].getY());
-                        mousePressAndRelease(robot);
+                        openMarket(robot);
                         waitUntilQueryBoxComeAndGone(robotPeer);
                         method.invoke(robotPeer,captureRect.x,captureRect.y,captureRect.width,captureRect.height,captureRectArray);
                         if (match()) {
-                            for (int i = 1; i < points.length - 1; i++) {
+                            for (int i = 0; i < points.length-1 ; i++) {
                                 robot.mouseMove((int) points[i].getX(), (int) points[i].getY());
                                 mousePressAndRelease(robot);
-                                if (i == 2 && !waitUntilWindowAppear(robotPeer)) {
+                                if (i == 1 && !waitUntilWindowAppear(robotPeer)) {
                                     break;
                                 }
                             }
-                            Thread.sleep(200);
+                            Thread.sleep(300);
                         }
-                        robot.mouseMove((int) points[5].getX(), (int) points[5].getY());
+                        robot.mouseMove((int) points[4].getX(), (int) points[4].getY());
                         mousePressAndRelease(robot);
                         System.out.println(System.currentTimeMillis() - now);
                     } catch (Exception ignored) {
@@ -157,8 +158,9 @@ public class Main {
             }
     }
 
-    private void catchSnapshot(){
-
+    private static void openMarket(Robot robot){
+        robot.keyPress(KeyEvent.VK_ALT);
+        robot.keyPress(KeyEvent.VK_A);
     }
 
     private static RobotPeer getRobotPeer(Robot robot) throws NoSuchFieldException, IllegalAccessException {
@@ -199,21 +201,47 @@ public class Main {
         throw new RuntimeException("generCaptureRect failed");
     }
 
-    private static void waitUntilQueryBoxComeAndGone(RobotPeer robot) throws InvocationTargetException, IllegalAccessException {
+    private static void waitUntilQueryBoxComeAndGone(RobotPeer robot) throws InvocationTargetException, IllegalAccessException, AWTException, IOException, InterruptedException {
         long now = System.currentTimeMillis();
 
         while(!containQueryBox(robot)) {
-            if (System.currentTimeMillis() - now > 150L){
+            if (System.currentTimeMillis() - now > 75L){
+                ImageIO.write(new Robot().createScreenCapture(qbRect),"png",new File("test.png"));
                 System.out.println("wait Box timeout");
-                break;
+                if (timeoutCount.incrementAndGet()>50){
+                    resetPoint(robot);
+                }
+                robot.keyRelease(KeyEvent.VK_A);
+                robot.keyRelease(KeyEvent.VK_ALT);
+                throw new RuntimeException();
             }
         }
-
+        robot.keyRelease(KeyEvent.VK_A);
+        robot.keyRelease(KeyEvent.VK_ALT);
+        timeoutCount.set(0);
         while(containQueryBox(robot)) {
         }
+        System.out.println("time"+(System.currentTimeMillis() - now));
     }
 
+    private static void resetPoint(RobotPeer robotPeer) throws InterruptedException {
 
+        robotPeer.mouseMove((int) points[4].getX(), (int) points[4].getY());
+        robotPeer.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+        Thread.sleep(1);
+        robotPeer.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+        robotPeer.keyPress(KeyEvent.VK_ESCAPE);
+        Thread.sleep(20);
+        robotPeer.keyRelease(KeyEvent.VK_ESCAPE);
+
+        robotPeer.keyPress(KeyEvent.VK_ESCAPE);
+        Thread.sleep(20);
+        robotPeer.keyRelease(KeyEvent.VK_ESCAPE);
+
+        robotPeer.keyPress(KeyEvent.VK_ESCAPE);
+        Thread.sleep(20);
+        robotPeer.keyRelease(KeyEvent.VK_ESCAPE);
+    }
 
 
     private static boolean waitUntilWindowAppear(RobotPeer robot) throws InterruptedException {
@@ -269,14 +297,14 @@ public class Main {
         robot.keyRelease(KeyEvent.VK_F4);
         robot.keyRelease(KeyEvent.VK_ALT);
         Thread.sleep(1000);
-        robot.mouseMove((int) points[3].getX() + captureRect.width /8, (int) points[3].getY() + captureRect.height);
+        robot.mouseMove((int) points[2].getX() + captureRect.width /8, (int) points[2].getY() + captureRect.height);
         mousePressAndRelease(robot);
         Thread.sleep(6000);
         robot.mouseMove(captureRect.width /8, captureRect.height/2);
         mousePressAndRelease(robot);
         mousePressAndRelease(robot);
         Thread.sleep(5000);
-        robot.mouseMove((int) points[2].getX()+captureRect.width /2, (int) points[2].getY());
+        robot.mouseMove((int) points[1].getX()+captureRect.width /2, (int) points[1].getY());
         mousePressAndRelease(robot);
         Thread.sleep(20000);
 
@@ -284,31 +312,36 @@ public class Main {
         robot.keyPress(KeyEvent.VK_ENTER);
         robot.keyRelease(KeyEvent.VK_ENTER);
         Thread.sleep(3000);
-        robot.mouseMove((int) points[3].getX() - captureRect.width / 4, (int) points[3].getY() + captureRect.height * 3 / 4);
+        robot.mouseMove((int) points[2].getX() - captureRect.width / 4, (int) points[2].getY() + captureRect.height * 3 / 4);
         mousePressAndRelease(robot);
         Thread.sleep(20000);
 
 
         escape(robot);
-        robot.mouseMove((int) points[0].getX(), (int) points[0].getY());
+        robot.mouseMove((int) points[4].getX() - 2 * captureRect.width, (int) points[4].getY());
+        mousePressAndRelease(robot);
+        Thread.sleep(100);
+
+        openMarket(robot);
+        Thread.sleep(1000);
+        robot.keyRelease(KeyEvent.VK_ALT);
+        robot.keyRelease(KeyEvent.VK_A);
+        robot.mouseMove((int) captureRect.getX()+captureRect.width*6+captureRect.width/3, (int)captureRect.getY()+captureRect.height+captureRect.height/2);
         mousePressAndRelease(robot);
         Thread.sleep(1000);
-        robot.mouseMove((int) captureRect.getX()+captureRect.width*7/2, (int)captureRect.getY()+captureRect.height);
-        mousePressAndRelease(robot);
-        Thread.sleep(1000);
-        robot.mouseMove((int) captureRect.getX()-captureRect.width, (int)captureRect.getY()+captureRect.height*4);
+        robot.mouseMove((int) captureRect.getX()-3*captureRect.width, (int)captureRect.getY()+captureRect.height*4);
         robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
-        robot.mouseMove((int) captureRect.getX()-captureRect.width, (int)captureRect.getY());
+        robot.mouseMove((int) captureRect.getX()-3*captureRect.width, (int)captureRect.getY()+captureRect.height);
         Thread.sleep(1000);
         robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
-        robot.mouseMove((int) captureRect.getX()-captureRect.width, (int)captureRect.getY()+captureRect.height);
+        robot.mouseMove((int) captureRect.getX()-3*captureRect.width, (int)captureRect.getY()+captureRect.height*5/2);
         mousePressAndRelease(robot);
         Thread.sleep(1000);
         robot.mouseMove((int) captureRect.getX(), (int)captureRect.getY()+captureRect.height*2);
         mousePressAndRelease(robot);
-        robot.mouseMove((int) points[5].getX(), (int) points[5].getY());
-        mousePressAndRelease(robot);
-
+        robot.keyPress(KeyEvent.VK_ESCAPE);
+        Thread.sleep(200);
+        robot.keyRelease(KeyEvent.VK_ESCAPE);
 
     }
 
