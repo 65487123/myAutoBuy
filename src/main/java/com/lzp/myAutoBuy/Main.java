@@ -127,7 +127,7 @@ public class Main {
 
 
         while (true) {
-                for (int l = 0; l <120 ; l++) {
+                for (int l = 0; l <12000 ; l++) {
                     try {
                         long now = System.currentTimeMillis();
                         openMarket(robot);
@@ -330,7 +330,6 @@ public class Main {
         Thread.sleep(1000);
         robot.keyRelease(KeyEvent.VK_ALT);
         robot.keyRelease(KeyEvent.VK_A);
-        //TODO
         robot.mouseMove((int) captureRect.getX()+captureRect.width*4+captureRect.width/6, (int)captureRect.getY()+captureRect.height/2);
         mousePressAndRelease(robot);
         Thread.sleep(1000);
