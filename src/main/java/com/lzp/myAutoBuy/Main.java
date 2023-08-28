@@ -203,11 +203,11 @@ public class Main {
             if (System.currentTimeMillis() - now > 75L){
                 ImageIO.write(new Robot().createScreenCapture(captureRect),"png",new File("test.png"));
                 System.out.println("wait Box timeout");
+                robot.keyRelease(KeyEvent.VK_A);
+                robot.keyRelease(KeyEvent.VK_ALT);
                 if (timeoutCount.incrementAndGet()>50){
                     resetPoint(robot);
                 }
-                robot.keyRelease(KeyEvent.VK_A);
-                robot.keyRelease(KeyEvent.VK_ALT);
                 throw new RuntimeException();
             }
         }
@@ -221,22 +221,25 @@ public class Main {
     }
 
     private static void resetPoint(RobotPeer robotPeer) throws InterruptedException {
+        robotPeer.mouseMove((int) points[4].getX() -  captureRect.width*5/4, (int) points[4].getY());
+        robotPeer.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+        Thread.sleep(1);
+        robotPeer.keyPress(KeyEvent.VK_ESCAPE);
+        Thread.sleep(100);
+        robotPeer.keyRelease(KeyEvent.VK_ESCAPE);
+        robotPeer.keyPress(KeyEvent.VK_ESCAPE);
+        Thread.sleep(100);
+        robotPeer.keyRelease(KeyEvent.VK_ESCAPE);
 
-        robotPeer.mouseMove((int) points[4].getX(), (int) points[4].getY());
+
+
+        robotPeer.mouseMove((int) points[4].getX() -  captureRect.width*5/4, (int) points[4].getY());
         robotPeer.mousePress(InputEvent.BUTTON1_DOWN_MASK);
         Thread.sleep(1);
         robotPeer.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
-        robotPeer.keyPress(KeyEvent.VK_ESCAPE);
-        Thread.sleep(20);
-        robotPeer.keyRelease(KeyEvent.VK_ESCAPE);
-
-        robotPeer.keyPress(KeyEvent.VK_ESCAPE);
-        Thread.sleep(20);
-        robotPeer.keyRelease(KeyEvent.VK_ESCAPE);
-
-        robotPeer.keyPress(KeyEvent.VK_ESCAPE);
-        Thread.sleep(20);
-        robotPeer.keyRelease(KeyEvent.VK_ESCAPE);
+        robotPeer.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+        Thread.sleep(1);
+        robotPeer.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
     }
 
 
