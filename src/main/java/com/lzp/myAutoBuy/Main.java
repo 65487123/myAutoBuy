@@ -70,12 +70,13 @@ public class Main {
             expectedHeightC = expectedImageC.getHeight();
             expectedPixelsC = expectedImageC.getRGB(0, 0, expectedWidthC, expectedHeightC, null, 0, expectedWidthC);
 
-            BufferedImage expectedImageD = ImageIO.read(new File("./f.png"));
+            BufferedImage expectedImageD = ImageIO.read(new File("./d.png"));
             expectedWidthD = expectedImageD.getWidth();
             expectedHeightD = expectedImageD.getHeight();
             expectedPixelsD = expectedImageD.getRGB(0, 0, expectedWidthD, expectedHeightD, null, 0, expectedWidthD);
 
-            BufferedImage expectedImageW = ImageIO.read(new File("./window.png"));
+            BufferedImage expectedImageW = ImageIO.read
+                    (new File("./window.png"));
             expectedWidthW = expectedImageW.getWidth();
             expectedHeightW = expectedImageW.getHeight();
             expectedPixelsW = expectedImageW.getRGB(0, 0, expectedWidthW, expectedHeightW, null, 0, expectedWidthW);
@@ -309,6 +310,7 @@ public class Main {
         Thread.sleep(6000);
         robot.mouseMove(captureRect.width/5 , captureRect.height/6);
         mousePressAndRelease(robot);
+
         mousePressAndRelease(robot);
         Thread.sleep(5000);
         robot.mouseMove((int) points[1].getX()+(captureRect.width /2)*4/9, (int) points[1].getY());
