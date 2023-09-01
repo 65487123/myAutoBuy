@@ -218,6 +218,10 @@ public class Main {
         robot.keyRelease(KeyEvent.VK_ALT);
         timeoutCount.set(0);
         while(containQueryBox(robot)) {
+            if (System.currentTimeMillis() - now>5000){
+                resetPoint(robot);
+                throw new RuntimeException();
+            }
         }
     }
 
