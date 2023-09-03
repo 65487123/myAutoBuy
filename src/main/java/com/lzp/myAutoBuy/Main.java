@@ -10,6 +10,8 @@ import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -94,7 +96,7 @@ public class Main {
 
         captureRectArray = new int[captureRect.width * captureRect.height];
 
-        optionPane = new JOptionPane("现在可以把购买窗口关闭了,接下来要定位5个所需坐标", JOptionPane.INFORMATION_MESSAGE);
+        optionPane = new JOptionPane("现在可以把购买窗口关闭了,接下来要定位5个所需坐标,如已定位过,无需再次定位", JOptionPane.INFORMATION_MESSAGE);
         dialog = optionPane.createDialog("提示");
         dialog.setAlwaysOnTop(true);
         dialog.setVisible(true);
@@ -108,17 +110,27 @@ public class Main {
         method.setAccessible(true);
         CountDownLatch countDownLatch = new CountDownLatch(1);
         new Thread(() -> {
-            for(int i = 0; i < 5; ++i) {
-                try {
-                    Thread.sleep(800L);
-                } catch (InterruptedException ignored) {
-                }
+            try {
+                ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream("points.obj"));
+                points = (Point[]) objectInputStream.readObject();
+            }catch (Exception e){
+                for(int i = 0; i < 5; ++i) {
+                    try {
+                        Thread.sleep(800L);
+                    } catch (InterruptedException ignored) {
+                    }
 
-                points[i] = MouseInfo.getPointerInfo().getLocation();
-                JOptionPane optionPane = new JOptionPane("第" + (i + 1) + "个位置已记录！", JOptionPane.INFORMATION_MESSAGE);
-                JDialog dialog = optionPane.createDialog("提示");
-                dialog.setAlwaysOnTop(true);
-                dialog.setVisible(true);
+                    points[i] = MouseInfo.getPointerInfo().getLocation();
+                    JOptionPane optionPane = new JOptionPane("第" + (i + 1) + "个位置已记录！", JOptionPane.INFORMATION_MESSAGE);
+                    JDialog dialog = optionPane.createDialog("提示");
+                    dialog.setAlwaysOnTop(true);
+                    dialog.setVisible(true);
+                }
+                try {
+                    new ObjectOutputStream(Files.newOutputStream(Paths.get("points.obj"))).writeObject(points);
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
             countDownLatch.countDown();
         }).start();
@@ -410,8 +422,9 @@ public class Main {
     private static boolean match() {
         try {
             return matchA(captureRect.width, captureRect.height, captureRectArray) || matchB(captureRect.width, captureRect.height, captureRectArray)
-                    || matchC(captureRect.width, captureRect.height, captureRectArray);
+                    /*|| matchC(captureRect.width, captureRect.height, captureRectArray)*/;
         } catch (Exception e) {
+
 
             System.out.println(e.getMessage());
             return false;
