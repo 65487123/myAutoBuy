@@ -49,6 +49,14 @@ public class Main {
     private static Method method;
     private static Point[] points = new Point[5];
 
+
+    /**
+     * 0 代表星石
+     * 1 代表变身卡
+     *
+     *
+    * */
+    private static int type = 1;
     private static AtomicInteger timeoutCount = new AtomicInteger();
     static {
         JOptionPane optionPane = new JOptionPane("请确保程序启动前购买窗口已打开！", JOptionPane.INFORMATION_MESSAGE);
@@ -57,22 +65,22 @@ public class Main {
         dialog.setVisible(true);
 
         try {
-            BufferedImage expectedImageA = ImageIO.read(new File("./a.png"));
+            BufferedImage expectedImageA = ImageIO.read(new File("./d.png"));
             expectedWidthA = expectedImageA.getWidth();
             expectedHeightA = expectedImageA.getHeight();
             expectedPixelsA = expectedImageA.getRGB(0, 0, expectedWidthA, expectedHeightA, null, 0, expectedWidthA);
 
-            BufferedImage expectedImageB = ImageIO.read(new File("./b.png"));
+            BufferedImage expectedImageB = ImageIO.read(new File("./e.png"));
             expectedWidthB = expectedImageB.getWidth();
             expectedHeightB = expectedImageB.getHeight();
             expectedPixelsB = expectedImageB.getRGB(0, 0, expectedWidthB, expectedHeightB, null, 0, expectedWidthB);
 
-            BufferedImage expectedImageC = ImageIO.read(new File("./c.png"));
+            BufferedImage expectedImageC = ImageIO.read(new File("./f.png"));
             expectedWidthC = expectedImageC.getWidth();
             expectedHeightC = expectedImageC.getHeight();
             expectedPixelsC = expectedImageC.getRGB(0, 0, expectedWidthC, expectedHeightC, null, 0, expectedWidthC);
 
-            BufferedImage expectedImageD = ImageIO.read(new File("./d.png"));
+            BufferedImage expectedImageD = ImageIO.read(new File("./g.png"));
             expectedWidthD = expectedImageD.getWidth();
             expectedHeightD = expectedImageD.getHeight();
             expectedPixelsD = expectedImageD.getRGB(0, 0, expectedWidthD, expectedHeightD, null, 0, expectedWidthD);
@@ -140,33 +148,33 @@ public class Main {
 
 
         while (true) {
-                for (int l = 0; l <12000 ; l++) {
-                    try {
-                        long now = System.currentTimeMillis();
-                        openMarket(robot);
-                        waitUntilQueryBoxComeAndGone(robotPeer);
-                        if (match()) {
-                            for (int i = 0; i < points.length-1 ; i++) {
-                                robot.mouseMove((int) points[i].getX(), (int) points[i].getY());
-                                mousePressAndRelease(robot);
-                                if (i == 1 && !waitUntilWindowAppear(robotPeer)) {
-                                    break;
-                                }
+            for (int l = 0; l < 12000; l++) {
+                try {
+                    long now = System.currentTimeMillis();
+                    openMarket(robot);
+                    waitUntilQueryBoxComeAndGone(robotPeer);
+                    if (match()) {
+                        for (int i = 0; i < points.length - 1; i++) {
+                            robot.mouseMove((int) points[i].getX(), (int) points[i].getY());
+                            mousePressAndRelease(robot);
+                            if (i == 1 && !waitUntilWindowAppear(robotPeer)) {
+                                break;
                             }
-                            Thread.sleep(300);
                         }
-                        robot.mouseMove((int) points[4].getX(), (int) points[4].getY());
-                        mousePressAndRelease(robot);
-                        System.out.println(System.currentTimeMillis() - now);
-                    } catch (Exception ignored) {
+                        Thread.sleep(300);
                     }
+                    robot.mouseMove((int) points[4].getX(), (int) points[4].getY());
+                    mousePressAndRelease(robot);
+                    System.out.println(System.currentTimeMillis() - now);
+                } catch (Exception ignored) {
                 }
-                Thread.sleep(1000);
-                logOutAndLogin(robot);
             }
+            Thread.sleep(1000);
+            logOutAndLogin(robot);
+        }
     }
 
-    private static void openMarket(Robot robot){
+    private static void openMarket(Robot robot) {
         robot.keyPress(KeyEvent.VK_ALT);
         robot.keyPress(KeyEvent.VK_A);
     }
@@ -321,32 +329,25 @@ public class Main {
         robot.keyRelease(KeyEvent.VK_ALT);
         Thread.sleep(1000);
         robot.mouseMove((int) points[2].getX() +captureRect.width/2 , (int) points[2].getY() + captureRect.height/2);
-
         mousePressAndRelease(robot);
         Thread.sleep(6000);
         robot.mouseMove(captureRect.width/5 , captureRect.height/6);
         mousePressAndRelease(robot);
-
         mousePressAndRelease(robot);
         Thread.sleep(5000);
         robot.mouseMove((int) points[1].getX()+(captureRect.width /2)*4/9, (int) points[1].getY());
         mousePressAndRelease(robot);
         Thread.sleep(20000);
-
-
         robot.keyPress(KeyEvent.VK_ENTER);
         robot.keyRelease(KeyEvent.VK_ENTER);
         Thread.sleep(3000);
         robot.mouseMove((int) points[2].getX() - captureRect.width , (int) points[2].getY() + captureRect.height  / 3);
         mousePressAndRelease(robot);
         Thread.sleep(20000);
-
-
         escape(robot);
         robot.mouseMove((int) points[4].getX() -  captureRect.width*5/4, (int) points[4].getY());
         mousePressAndRelease(robot);
         Thread.sleep(100);
-
         openMarket(robot);
         Thread.sleep(1000);
         robot.keyRelease(KeyEvent.VK_ALT);
@@ -354,21 +355,38 @@ public class Main {
         robot.mouseMove((int) captureRect.getX()+captureRect.width*4+captureRect.width/6, (int)captureRect.getY()+captureRect.height/2);
         mousePressAndRelease(robot);
         Thread.sleep(1000);
-        robot.mouseMove((int) captureRect.getX()-2*captureRect.width, (int)captureRect.getY()+captureRect.height*2);
-        robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
-        robot.mouseMove((int) captureRect.getX()-2*captureRect.width, (int)captureRect.getY());
-        Thread.sleep(1000);
-        robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
-        robot.mouseMove((int) captureRect.getX()-2*captureRect.width, (int)captureRect.getY()+captureRect.height/2);
-        mousePressAndRelease(robot);
-        Thread.sleep(1000);
-        robot.mouseMove((int) captureRect.getX(),
-                (int)captureRect.getY()+captureRect.height);
-        mousePressAndRelease(robot);
+        openSalesDetails(robot);
         robot.keyPress(KeyEvent.VK_ESCAPE);
         Thread.sleep(200);
         robot.keyRelease(KeyEvent.VK_ESCAPE);
 
+    }
+
+    private static void openSalesDetails(Robot robot) {
+        if (type == 0) {
+            robot.mouseMove((int) captureRect.getX() - 2 * captureRect.width, (int) captureRect.getY() + captureRect.height * 2);
+            robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+            robot.mouseMove((int) captureRect.getX() - 2 * captureRect.width, (int) captureRect.getY());
+            robot.delay(1000);
+            robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+            robot.mouseMove((int) captureRect.getX() - 2 * captureRect.width, (int) captureRect.getY() + captureRect.height / 2);
+            mousePressAndRelease(robot);
+            robot.delay(1000);
+            robot.mouseMove((int) captureRect.getX(),
+                    (int) captureRect.getY() + captureRect.height);
+            mousePressAndRelease(robot);
+        } else {
+            robot.mouseMove((int) captureRect.getX() - 2 * captureRect.width, (int) captureRect.getY() + captureRect.height * 2 + captureRect.height / 10);
+            mousePressAndRelease(robot);
+            robot.delay(1000);
+            mousePressAndRelease(robot);
+            robot.delay(1000);
+            mousePressAndRelease(robot);
+            robot.delay(1000);
+            robot.mouseMove((int) captureRect.getX() + captureRect.width * 2,
+                    (int) captureRect.getY() + captureRect.height / 2);
+            mousePressAndRelease(robot);
+        }
     }
 
     private static void escape(Robot robot) throws InterruptedException {
@@ -422,10 +440,8 @@ public class Main {
     private static boolean match() {
         try {
             return matchA(captureRect.width, captureRect.height, captureRectArray) || matchB(captureRect.width, captureRect.height, captureRectArray)
-                    /*|| matchC(captureRect.width, captureRect.height, captureRectArray)*/;
+                    || matchC(captureRect.width, captureRect.height, captureRectArray) || matchD(captureRect.width, captureRect.height, captureRectArray);
         } catch (Exception e) {
-
-
             System.out.println(e.getMessage());
             return false;
         }
