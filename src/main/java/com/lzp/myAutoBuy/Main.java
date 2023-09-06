@@ -52,8 +52,8 @@ public class Main {
 
     /**
      * 0 代表星石
-     * 1 代表变身卡
-     *
+     * 1 代表高级变身卡
+     * 2 代表低级变身卡
      *
     * */
     private static int type = 1;
@@ -65,7 +65,7 @@ public class Main {
         dialog.setVisible(true);
 
         try {
-            BufferedImage expectedImageA = ImageIO.read(new File("./d.png"));
+            BufferedImage expectedImageA = ImageIO.read(new File("./h.png"));
             expectedWidthA = expectedImageA.getWidth();
             expectedHeightA = expectedImageA.getHeight();
             expectedPixelsA = expectedImageA.getRGB(0, 0, expectedWidthA, expectedHeightA, null, 0, expectedWidthA);
@@ -375,7 +375,7 @@ public class Main {
             robot.mouseMove((int) captureRect.getX(),
                     (int) captureRect.getY() + captureRect.height);
             mousePressAndRelease(robot);
-        } else {
+        } else  {
             robot.mouseMove((int) captureRect.getX() - 2 * captureRect.width, (int) captureRect.getY() + captureRect.height * 2 + captureRect.height / 10);
             mousePressAndRelease(robot);
             robot.delay(1000);
@@ -383,8 +383,13 @@ public class Main {
             robot.delay(1000);
             mousePressAndRelease(robot);
             robot.delay(1000);
-            robot.mouseMove((int) captureRect.getX() + captureRect.width * 2,
-                    (int) captureRect.getY() + captureRect.height / 2);
+            if (type == 1) {
+                robot.mouseMove((int) captureRect.getX() + captureRect.width * 2,
+                        (int) captureRect.getY() + captureRect.height / 2);
+            }else {
+                robot.mouseMove((int) captureRect.getX() ,
+                        (int) captureRect.getY() + captureRect.height );
+            }
             mousePressAndRelease(robot);
         }
     }
