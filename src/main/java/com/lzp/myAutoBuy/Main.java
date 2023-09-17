@@ -59,9 +59,10 @@ public class Main {
      * 0 代表星石
      * 1 代表高级变身卡
      * 2 代表低级变身卡
+     * 3 代表召唤灵积分券
      *
     * */
-    private static int type = 0;
+    private static int type = 3;
     private static AtomicInteger timeoutCount = new AtomicInteger();
     static {
         JOptionPane optionPane = new JOptionPane("请确保程序启动前购买窗口已打开！", JOptionPane.INFORMATION_MESSAGE);
@@ -75,12 +76,12 @@ public class Main {
             expectedHeightA = expectedImageA.getHeight();
             expectedPixelsA = expectedImageA.getRGB(0, 0, expectedWidthA, expectedHeightA, null, 0, expectedWidthA);
 
-            BufferedImage expectedImageB = ImageIO.read(new File("./b.png"));
+            BufferedImage expectedImageB = ImageIO.read(new File("./h1.png"));
             expectedWidthB = expectedImageB.getWidth();
             expectedHeightB = expectedImageB.getHeight();
             expectedPixelsB = expectedImageB.getRGB(0, 0, expectedWidthB, expectedHeightB, null, 0, expectedWidthB);
 
-            BufferedImage expectedImageC = ImageIO.read(new File("./f.png"));
+            BufferedImage expectedImageC = ImageIO.read(new File("./h2.png"));
             expectedWidthC = expectedImageC.getWidth();
             expectedHeightC = expectedImageC.getHeight();
             expectedPixelsC = expectedImageC.getRGB(0, 0, expectedWidthC, expectedHeightC, null, 0, expectedWidthC);
@@ -158,7 +159,7 @@ public class Main {
 
 
         while (true) {
-            for (int l = 0; l < 12000; l++) {
+            for (int l = 0; l < 12; l++) {
                 long now = System.currentTimeMillis();
                 try {
                     openMarket(robot);
@@ -341,7 +342,21 @@ public class Main {
             robot.mouseMove((int) captureRect.getX(),
                     (int) captureRect.getY() + captureRect.height);
             mousePressAndRelease(robot);
-        } else  {
+        } else if (type == 3) {
+            robot.mouseMove((int) captureRect.getX() - 2 * captureRect.width, (int) captureRect.getY() + captureRect.height * 2 + captureRect.height / 10);             mousePressAndRelease(robot);             robot.delay(1000);             mousePressAndRelease(robot);             robot.delay(1000);             robot.mouseMove((int) captureRect.getX() - 2 * captureRect.width, (int) captureRect.getY() + captureRect.height * 2 - captureRect.height / 10);             mousePressAndRelease(robot);             robot.delay(1000);
+            robot.mouseMove((int) captureRect.getX(),
+                    (int) captureRect.getY() + captureRect.height);
+            robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+
+            robot.mouseMove((int) captureRect.getX(),
+                    (int) captureRect.getY());
+            robot.delay(1000);
+            robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+            robot.mouseMove((int) captureRect.getX()+ captureRect.width*2,
+                    (int) captureRect.getY() + captureRect.height+captureRect.height/2);
+            robot.delay(200);
+            mousePressAndRelease(robot);
+        } else {
             robot.mouseMove((int) captureRect.getX() - 2 * captureRect.width, (int) captureRect.getY() + captureRect.height * 2 + captureRect.height / 10);
             mousePressAndRelease(robot);
             robot.delay(1000);
@@ -352,9 +367,9 @@ public class Main {
             if (type == 1) {
                 robot.mouseMove((int) captureRect.getX() + captureRect.width * 2,
                         (int) captureRect.getY() + captureRect.height / 2);
-            }else {
-                robot.mouseMove((int) captureRect.getX() ,
-                        (int) captureRect.getY() + captureRect.height );
+            } else {
+                robot.mouseMove((int) captureRect.getX(),
+                        (int) captureRect.getY() + captureRect.height);
             }
             mousePressAndRelease(robot);
         }
@@ -409,8 +424,8 @@ public class Main {
 
     private static boolean match() {
         try {
-            return matchA(captureRect.width, captureRect.height) || matchB(captureRect.width, captureRect.height)
-                   /* || matchC(captureRect.width, captureRect.height) || matchD(captureRect.width, captureRect.height)*/;
+            return matchA(captureRect.width, captureRect.height) /*|| matchB(captureRect.width, captureRect.height)
+                    || matchC(captureRect.width, captureRect.height) || matchD(captureRect.width, captureRect.height)*/;
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return false;
