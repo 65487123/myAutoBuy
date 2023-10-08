@@ -14,6 +14,7 @@ import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
@@ -76,7 +77,7 @@ public class Main {
             expectedHeightA = expectedImageA.getHeight();
             expectedPixelsA = expectedImageA.getRGB(0, 0, expectedWidthA, expectedHeightA, null, 0, expectedWidthA);
 
-            BufferedImage expectedImageB = ImageIO.read(new File("./h1.png"));
+            BufferedImage expectedImageB = ImageIO.read(new File("./f.png"));
             expectedWidthB = expectedImageB.getWidth();
             expectedHeightB = expectedImageB.getHeight();
             expectedPixelsB = expectedImageB.getRGB(0, 0, expectedWidthB, expectedHeightB, null, 0, expectedWidthB);
@@ -159,7 +160,7 @@ public class Main {
 
 
         while (true) {
-            for (int l = 0; l < 12; l++) {
+            for (int l = 0; l < 12000; l++) {
                 long now = System.currentTimeMillis();
                 try {
                     openMarket(robot);
@@ -172,9 +173,11 @@ public class Main {
                                 Thread.sleep(20);
                             }
                         }
-                        Thread.sleep(300);
+                        System.out.println("all"+(System.currentTimeMillis() - now));
+                        Thread.sleep(1500);
                     }
                 } catch (Exception ignored) {
+                    System.out.println(ignored);
                 }
                 robot.mouseMove((int) points[4].getX(), (int) points[4].getY());
                 mousePressAndRelease(robot);
@@ -238,7 +241,7 @@ public class Main {
             method.invoke(robot,captureRect.x,captureRect.y,captureRect.width,captureRect.height,captureRectArray);
             if (System.currentTimeMillis() - now > 200) {
                 System.out.println("open market timeout");
-                if (timeoutCount.incrementAndGet() > 20) {
+                if (timeoutCount.incrementAndGet() > 15) {
                     resetPoint(robot);
                     timeoutCount.set(0);
                 }
@@ -394,15 +397,11 @@ public class Main {
     }
 
     private static boolean containQueryBox() throws InvocationTargetException, IllegalAccessException {
-        for(int y1 =  captureRect.height/4*3; y1 < captureRect.height; ++y1) {
-            if ((captureRect.height - y1) <= expectedHeightQ){
-                break ;
-            }
+        int zy = captureRect.height - expectedHeightQ;
+        int zx = captureRect.width - expectedWidthQ;
+        for (int y1 = captureRect.height / 4 * 3; y1 < zy; ++y1) {
             label42:
-            for (int x1 = captureRect.width/2; x1 < captureRect.width; ++x1) {
-                if ((captureRect.width - x1) <= expectedWidthQ){
-                    break ;
-                }
+            for (int x1 = captureRect.width / 2; x1 < zx; ++x1) {
                 int capturedPixel1 = captureRectArray[y1 * captureRect.width + x1];
                 if (expectedPixelsQ[0] == capturedPixel1) {
                     for (int y = 0; y < expectedHeightQ; ++y) {
@@ -417,15 +416,15 @@ public class Main {
                 }
             }
         }
-
         return false;
     }
 
 
     private static boolean match() {
         try {
-            return matchA(captureRect.width, captureRect.height) /*|| matchB(captureRect.width, captureRect.height)
-                    || matchC(captureRect.width, captureRect.height) || matchD(captureRect.width, captureRect.height)*/;
+            //用作秒积分券
+            return matchA(captureRect.width, captureRect.height) && !matchB(captureRect.width, captureRect.height)
+                    /*|| matchC(captureRect.width, captureRect.height) || matchD(captureRect.width, captureRect.height)*/;
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return false;
@@ -433,15 +432,11 @@ public class Main {
     }
 
     private static boolean marketOpened(int capturedWidth, int capturedHeight) {
-        for(int y1 = capturedHeight/10; y1 < capturedHeight; ++y1) {
-            if ((capturedHeight - y1) <= expectedHeightGo){
-                break ;
-            }
+        int zy = captureRect.height - expectedHeightGo;
+        int zx = captureRect.width - expectedWidthGo;
+        for(int y1 = capturedHeight/10; y1 < zy; ++y1) {
             label42:
-            for (int x1 = capturedWidth/10; x1 < capturedWidth; ++x1) {
-                if ((capturedWidth - x1) <= expectedWidthGo){
-                    break ;
-                }
+            for (int x1 = capturedWidth/10; x1 < zx; ++x1) {
                 int capturedPixel1 = captureRectArray[y1 * capturedWidth + x1];
                 if (expectedPixelsGo[0] == capturedPixel1 ) {
                     for (int y = 0; y < expectedHeightGo; ++y) {
@@ -462,15 +457,11 @@ public class Main {
 
 
     private static boolean matchA(int capturedWidth, int capturedHeight) {
-        for(int y1 = capturedHeight/10; y1 < capturedHeight; ++y1) {
-            if ((capturedHeight - y1) <= expectedHeightA){
-                break ;
-            }
+        int zy = captureRect.height - expectedHeightA;
+        int zx = captureRect.width - expectedWidthA;
+        for(int y1 = capturedHeight/10; y1 < zy; ++y1) {
             label42:
-            for (int x1 = capturedWidth/10; x1 < capturedWidth; ++x1) {
-                if ((capturedWidth - x1) <= expectedWidthA){
-                    break ;
-                }
+            for (int x1 = capturedWidth/10; x1 < zx; ++x1) {
                 int capturedPixel1 = captureRectArray[y1 * capturedWidth + x1];
                 if (expectedPixelsA[0] == capturedPixel1 ) {
                     for (int y = 0; y < expectedHeightA; ++y) {
@@ -490,15 +481,11 @@ public class Main {
     }
 
     private static boolean matchB(int capturedWidth, int capturedHeight) {
-        for(int y1 = capturedHeight/10; y1 < capturedHeight; ++y1) {
-            if ((capturedHeight - y1) <= expectedHeightB){
-                break ;
-            }
+        int zy = captureRect.height - expectedHeightB;
+        int zx = captureRect.width - expectedWidthB;
+        for(int y1 = capturedHeight/10; y1 < zy; ++y1) {
             label42:
-            for(int x1 = capturedWidth/10; x1 < capturedWidth; ++x1) {
-                if ((capturedWidth - x1) <= expectedWidthB){
-                    break ;
-                }
+            for(int x1 = capturedWidth/10; x1 < zx; ++x1) {
                 int capturedPixel1 = captureRectArray[y1 * capturedWidth + x1];
                 if (expectedPixelsB[0] == capturedPixel1 ) {
                     for (int y = 0; y < expectedHeightB; ++y) {
