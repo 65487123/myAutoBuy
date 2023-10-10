@@ -4,6 +4,7 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.InputEvent;
+
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.awt.peer.RobotPeer;
@@ -174,7 +175,7 @@ public class Main {
                             }
                         }
                         System.out.println("all"+(System.currentTimeMillis() - now));
-                        Thread.sleep(1500);
+                        Thread.sleep(1800);
                     }
                 } catch (Exception ignored) {
                     System.out.println(ignored);
@@ -411,7 +412,6 @@ public class Main {
                             }
                         }
                     }
-
                     return true;
                 }
             }
