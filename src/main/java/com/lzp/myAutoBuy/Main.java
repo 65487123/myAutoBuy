@@ -1,5 +1,6 @@
 package com.lzp.myAutoBuy;
 
+import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
@@ -167,6 +168,7 @@ public class Main {
                     openMarket(robot);
                     waitUntilQueryBoxComeAndGone(robotPeer);
                     if (match()) {
+                        //ImageIO.write(robot.createScreenCapture(captureRect),"png",new File("D:\\project\\picture\\"+l+".png"));
                         for (int i = 0; i < points.length - 1; i++) {
                             robot.mouseMove((int) points[i].getX(), (int) points[i].getY());
                             mousePressAndRelease(robot);
@@ -175,7 +177,9 @@ public class Main {
                             }
                         }
                         System.out.println("all"+(System.currentTimeMillis() - now));
-                        Thread.sleep(1800);
+                        robot.mouseMove((int) points[4].getX(), (int) points[4].getY());
+                        mousePressAndRelease(robot);
+                        Thread.sleep(4000);
                     }
                 } catch (Exception ignored) {
                     System.out.println(ignored);
