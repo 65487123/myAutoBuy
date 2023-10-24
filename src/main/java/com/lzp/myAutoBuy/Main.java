@@ -79,7 +79,7 @@ public class Main {
             expectedHeightA = expectedImageA.getHeight();
             expectedPixelsA = expectedImageA.getRGB(0, 0, expectedWidthA, expectedHeightA, null, 0, expectedWidthA);
 
-            BufferedImage expectedImageB = ImageIO.read(new File("./f.png"));
+            BufferedImage expectedImageB = ImageIO.read(new File("./b.png"));
             expectedWidthB = expectedImageB.getWidth();
             expectedHeightB = expectedImageB.getHeight();
             expectedPixelsB = expectedImageB.getRGB(0, 0, expectedWidthB, expectedHeightB, null, 0, expectedWidthB);
@@ -166,24 +166,34 @@ public class Main {
                 long now = System.currentTimeMillis();
                 try {
                     openMarket(robot);
+                    boolean proper = true;
                     waitUntilQueryBoxComeAndGone(robotPeer);
-                    if (match()) {
-                        //ImageIO.write(robot.createScreenCapture(captureRect),"png",new File("D:\\project\\picture\\"+l+".png"));
-                        for (int i = 0; i < points.length - 1; i++) {
-                            robot.mouseMove((int) points[i].getX(), (int) points[i].getY());
-                            mousePressAndRelease(robot);
-                            if (i == 1) {
-                                Thread.sleep(20);
+                    //if (match()) {
+                    //ImageIO.write(robot.createScreenCapture(captureRect),"png",new File("D:\\project\\picture\\"+l+".png"));
+                    for (int i = 0; i < points.length - 1; i++) {
+                        robot.mouseMove((int) points[i].getX(), (int) points[i].getY());
+                        mousePressAndRelease(robot);
+                        if (i == 1) {
+                            //放到这里判断是为了性能
+                            if (! match()) {
+                                proper = false;
+                                break;
                             }
+                            Thread.sleep(15);
                         }
-                        System.out.println("all"+(System.currentTimeMillis() - now));
+                    }
+                    if (proper) {
                         robot.mouseMove((int) points[4].getX(), (int) points[4].getY());
                         mousePressAndRelease(robot);
+                        System.out.println("all" + (System.currentTimeMillis() - now));
                         Thread.sleep(4000);
                     }
+                    //}
                 } catch (Exception ignored) {
                     System.out.println(ignored);
                 }
+                mousePressAndRelease2(robot);
+
                 robot.mouseMove((int) points[4].getX(), (int) points[4].getY());
                 mousePressAndRelease(robot);
                 System.out.println(System.currentTimeMillis() - now);
@@ -293,6 +303,11 @@ public class Main {
         robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
         robot.delay(1);
         robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+    }
+    private static void mousePressAndRelease2(Robot robot) {
+        robot.mousePress(InputEvent.BUTTON2_DOWN_MASK);
+        robot.delay(1);
+        robot.mouseRelease(InputEvent.BUTTON2_DOWN_MASK);
     }
 
     private static void logOutAndLogin(Robot robot) throws InterruptedException {
@@ -427,7 +442,7 @@ public class Main {
     private static boolean match() {
         try {
             //用作秒积分券
-            return matchA(captureRect.width, captureRect.height) && !matchB(captureRect.width, captureRect.height)
+            return matchA(captureRect.width, captureRect.height) /*&& !||matchB(captureRect.width, captureRect.height)
                     /*|| matchC(captureRect.width, captureRect.height) || matchD(captureRect.width, captureRect.height)*/;
         } catch (Exception e) {
             System.out.println(e.getMessage());
