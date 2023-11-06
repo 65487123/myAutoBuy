@@ -176,10 +176,11 @@ public class Main {
                         if (i == 1) {
                             //放到这里判断是为了性能
                             if (! match()) {
+
                                 proper = false;
                                 break;
                             }
-                            Thread.sleep(15);
+                            Thread.sleep(17);
                         }
                     }
                     if (proper) {
