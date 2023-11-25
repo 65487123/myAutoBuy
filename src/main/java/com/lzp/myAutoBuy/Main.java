@@ -2,8 +2,12 @@ package com.lzp.myAutoBuy;
 
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
+
+
+
 import javax.swing.*;
 import java.awt.*;
+
 import java.awt.event.InputEvent;
 
 import java.awt.event.KeyEvent;
@@ -18,6 +22,7 @@ import java.nio.file.Paths;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
+
 
 
 public class Main {
@@ -65,7 +70,7 @@ public class Main {
      * 3 代表召唤灵积分券
      *
     * */
-    private static int type = 3;
+    private static int type = 0;
     private static AtomicInteger timeoutCount = new AtomicInteger();
     static {
         JOptionPane optionPane = new JOptionPane("请确保程序启动前购买窗口已打开！", JOptionPane.INFORMATION_MESSAGE);
@@ -79,7 +84,7 @@ public class Main {
             expectedHeightA = expectedImageA.getHeight();
             expectedPixelsA = expectedImageA.getRGB(0, 0, expectedWidthA, expectedHeightA, null, 0, expectedWidthA);
 
-            BufferedImage expectedImageB = ImageIO.read(new File("./b.png"));
+            BufferedImage expectedImageB = ImageIO.read(new File("./b1.png"));
             expectedWidthB = expectedImageB.getWidth();
             expectedHeightB = expectedImageB.getHeight();
             expectedPixelsB = expectedImageB.getRGB(0, 0, expectedWidthB, expectedHeightB, null, 0, expectedWidthB);
@@ -162,13 +167,13 @@ public class Main {
 
 
         while (true) {
-            for (int l = 0; l < 12000; l++) {
+            for (int l = 0; l <15000; l++) {
                 long now = System.currentTimeMillis();
                 try {
                     openMarket(robot);
                     boolean proper = true;
+
                     waitUntilQueryBoxComeAndGone(robotPeer);
-                    //if (match()) {
                     //ImageIO.write(robot.createScreenCapture(captureRect),"png",new File("D:\\project\\picture\\"+l+".png"));
                     for (int i = 0; i < points.length - 1; i++) {
                         robot.mouseMove((int) points[i].getX(), (int) points[i].getY());
@@ -180,7 +185,7 @@ public class Main {
                                 proper = false;
                                 break;
                             }
-                            Thread.sleep(17);
+                            Thread.sleep(19);
                         }
                     }
                     if (proper) {
@@ -189,7 +194,6 @@ public class Main {
                         System.out.println("all" + (System.currentTimeMillis() - now));
                         Thread.sleep(4000);
                     }
-                    //}
                 } catch (Exception ignored) {
                     System.out.println(ignored);
                 }
@@ -331,7 +335,7 @@ public class Main {
         Thread.sleep(20000);
         robot.keyPress(KeyEvent.VK_ENTER);
         robot.keyRelease(KeyEvent.VK_ENTER);
-        Thread.sleep(3000);
+        Thread.sleep(5000);
         robot.mouseMove((int) points[2].getX() - captureRect.width , (int) points[2].getY() + captureRect.height  / 3);
         mousePressAndRelease(robot);
         Thread.sleep(20000);
@@ -443,8 +447,7 @@ public class Main {
     private static boolean match() {
         try {
             //用作秒积分券
-            return matchA(captureRect.width, captureRect.height) /*&& !||matchB(captureRect.width, captureRect.height)
-                    /*|| matchC(captureRect.width, captureRect.height) || matchD(captureRect.width, captureRect.height)*/;
+            return matchA(captureRect.width, captureRect.height) ||matchB(captureRect.width, captureRect.height);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return false;
