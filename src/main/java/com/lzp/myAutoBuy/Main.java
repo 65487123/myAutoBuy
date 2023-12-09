@@ -42,6 +42,14 @@ public class Main {
     private static int expectedHeightD;
     private static int[] expectedPixelsD;
 
+    private static int expectedWidthE;
+    private static int expectedHeightE;
+    private static int[] expectedPixelsE;
+    private static int expectedWidthF;
+    private static int expectedHeightF;
+    private static int[] expectedPixelsF;
+
+
     private static int expectedWidthW;
     private static int expectedHeightW;
     private static int[] expectedPixelsW;
@@ -84,20 +92,31 @@ public class Main {
             expectedHeightA = expectedImageA.getHeight();
             expectedPixelsA = expectedImageA.getRGB(0, 0, expectedWidthA, expectedHeightA, null, 0, expectedWidthA);
 
-            BufferedImage expectedImageB = ImageIO.read(new File("./b1.png"));
+            BufferedImage expectedImageB = ImageIO.read(new File("./b.png"));
             expectedWidthB = expectedImageB.getWidth();
             expectedHeightB = expectedImageB.getHeight();
             expectedPixelsB = expectedImageB.getRGB(0, 0, expectedWidthB, expectedHeightB, null, 0, expectedWidthB);
 
-            BufferedImage expectedImageC = ImageIO.read(new File("./h2.png"));
+            BufferedImage expectedImageC = ImageIO.read(new File("./!b1.png"));
             expectedWidthC = expectedImageC.getWidth();
             expectedHeightC = expectedImageC.getHeight();
             expectedPixelsC = expectedImageC.getRGB(0, 0, expectedWidthC, expectedHeightC, null, 0, expectedWidthC);
 
-            BufferedImage expectedImageD = ImageIO.read(new File("./g.png"));
+            BufferedImage expectedImageD = ImageIO.read(new File("./!b2.png"));
             expectedWidthD = expectedImageD.getWidth();
             expectedHeightD = expectedImageD.getHeight();
             expectedPixelsD = expectedImageD.getRGB(0, 0, expectedWidthD, expectedHeightD, null, 0, expectedWidthD);
+
+            BufferedImage expectedImageE = ImageIO.read(new File("./!b3.png"));
+            expectedWidthE = expectedImageE.getWidth();
+            expectedHeightE = expectedImageE.getHeight();
+            expectedPixelsE = expectedImageE.getRGB(0, 0, expectedWidthE, expectedHeightE, null, 0, expectedWidthE);
+
+            BufferedImage expectedImageF = ImageIO.read(new File("./!b4.png"));
+            expectedWidthF = expectedImageF.getWidth();
+            expectedHeightF = expectedImageF.getHeight();
+            expectedPixelsF = expectedImageF.getRGB(0, 0, expectedWidthF, expectedHeightF, null, 0, expectedWidthF);
+
 
             BufferedImage expectedImageGo = ImageIO.read(new File("./gold.png"));
             expectedWidthGo = expectedImageGo.getWidth();
@@ -446,11 +465,13 @@ public class Main {
 
     private static boolean match() {
         try {
-            //用作秒积分券
-            return matchA(captureRect.width, captureRect.height) ||matchB(captureRect.width, captureRect.height);
+            return matchA(captureRect.width, captureRect.height) ||(matchB(captureRect.width, captureRect.height)
+                    &&!matchC(captureRect.width, captureRect.height)&&!matchD(captureRect.width, captureRect.height)
+                    &&!matchE(captureRect.width, captureRect.height)&&!matchF(captureRect.width, captureRect.height));
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return false;
+
         }
     }
 
@@ -480,7 +501,7 @@ public class Main {
 
 
     private static boolean matchA(int capturedWidth, int capturedHeight) {
-        int zy = captureRect.height - expectedHeightA;
+        int zy = captureRect.height/2;
         int zx = captureRect.width - expectedWidthA;
         for(int y1 = capturedHeight/10; y1 < zy; ++y1) {
             label42:
@@ -503,40 +524,12 @@ public class Main {
         return false;
     }
 
-    private static boolean matchB(int capturedWidth, int capturedHeight) {
-        int zy = captureRect.height - expectedHeightB;
-        int zx = captureRect.width - expectedWidthB;
+    private static boolean matchC(int capturedWidth, int capturedHeight) {
+        int zy = captureRect.height/2;
+        int zx = captureRect.width - expectedWidthC;
         for(int y1 = capturedHeight/10; y1 < zy; ++y1) {
             label42:
             for(int x1 = capturedWidth/10; x1 < zx; ++x1) {
-                int capturedPixel1 = captureRectArray[y1 * capturedWidth + x1];
-                if (expectedPixelsB[0] == capturedPixel1 ) {
-                    for (int y = 0; y < expectedHeightB; ++y) {
-                        for (int x = 0; x < expectedWidthB; ++x) {
-                            if (expectedPixelsB[y * expectedWidthB + x] != captureRectArray[(y + y1) * capturedWidth + x + x1]) {
-                                continue label42;
-                            }
-                        }
-                    }
-
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    private static boolean matchC(int capturedWidth, int capturedHeight) {
-        for(int y1 = capturedHeight/10; y1 < capturedHeight; ++y1) {
-            if ((capturedHeight - y1) <= expectedHeightC){
-                break ;
-            }
-            label42:
-            for (int x1 = capturedWidth/10; x1 < capturedWidth; ++x1) {
-                if ((capturedWidth - x1) <= expectedWidthC){
-                    break ;
-                }
                 int capturedPixel1 = captureRectArray[y1 * capturedWidth + x1];
                 if (expectedPixelsC[0] == capturedPixel1 ) {
                     for (int y = 0; y < expectedHeightC; ++y) {
@@ -556,22 +549,89 @@ public class Main {
     }
 
     private static boolean matchD(int capturedWidth, int capturedHeight) {
-        for(int y1 = capturedHeight/10; y1 < capturedHeight; ++y1) {
-            if ((capturedHeight - y1) <= expectedHeightD){
-                break ;
-            }
+        int zy = captureRect.height/2;
+        int zx = captureRect.width - expectedWidthD;
+        for(int y1 = capturedHeight/10; y1 < zy; ++y1) {
             label42:
-            for (int x1 = capturedWidth/10; x1 < capturedWidth; ++x1) {
-                if ((capturedWidth - x1) <= expectedWidthD){
-                    break ;
-                }
+            for(int x1 = capturedWidth/10; x1 < zx; ++x1) {
                 int capturedPixel1 = captureRectArray[y1 * capturedWidth + x1];
                 if (expectedPixelsD[0] == capturedPixel1 ) {
                     for (int y = 0; y < expectedHeightD; ++y) {
                         for (int x = 0; x < expectedWidthD; ++x) {
-                            int expectedPixel = expectedPixelsD[y * expectedWidthD + x];
-                            int capturedPixel = captureRectArray[(y + y1) * capturedWidth + x + x1];
-                            if (expectedPixel != capturedPixel) {
+                            if (expectedPixelsD[y * expectedWidthD + x] != captureRectArray[(y + y1) * capturedWidth + x + x1]) {
+                                continue label42;
+                            }
+                        }
+                    }
+
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private static boolean matchE(int capturedWidth, int capturedHeight) {
+        int zy = captureRect.height/2;
+        int zx = captureRect.width - expectedWidthE;
+        for(int y1 = capturedHeight/10; y1 < zy; ++y1) {
+            label42:
+            for(int x1 = capturedWidth/10; x1 < zx; ++x1) {
+                int capturedPixel1 = captureRectArray[y1 * capturedWidth + x1];
+                if (expectedPixelsE[0] == capturedPixel1 ) {
+                    for (int y = 0; y < expectedHeightE; ++y) {
+                        for (int x = 0; x < expectedWidthE; ++x) {
+                            if (expectedPixelsE[y * expectedWidthE + x] != captureRectArray[(y + y1) * capturedWidth + x + x1]) {
+                                continue label42;
+                            }
+                        }
+                    }
+
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+
+    private static boolean matchF(int capturedWidth, int capturedHeight) {
+        int zy = captureRect.height/2;
+        int zx = captureRect.width - expectedWidthF;
+        for(int y1 = capturedHeight/10; y1 < zy; ++y1) {
+            label42:
+            for(int x1 = capturedWidth/10; x1 < zx; ++x1) {
+                int capturedPixel1 = captureRectArray[y1 * capturedWidth + x1];
+                if (expectedPixelsF[0] == capturedPixel1 ) {
+                    for (int y = 0; y < expectedHeightF; ++y) {
+                        for (int x = 0; x < expectedWidthF; ++x) {
+                            if (expectedPixelsF[y * expectedWidthF + x] != captureRectArray[(y + y1) * capturedWidth + x + x1]) {
+                                continue label42;
+                            }
+                        }
+                    }
+
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private static boolean matchB(int capturedWidth, int capturedHeight) {
+        int zy = captureRect.height/2;
+        int zx = captureRect.width - expectedWidthB;
+        for(int y1 = capturedHeight/10; y1 < zy; ++y1) {
+            label42:
+            for(int x1 = capturedWidth/10; x1 < zx; ++x1) {
+                int capturedPixel1 = captureRectArray[y1 * capturedWidth + x1];
+                if (expectedPixelsB[0] == capturedPixel1 ) {
+                    for (int y = 0; y < expectedHeightB; ++y) {
+                        for (int x = 0; x < expectedWidthB; ++x) {
+                            if (expectedPixelsB[y * expectedWidthB + x] != captureRectArray[(y + y1) * capturedWidth + x + x1]) {
                                 continue label42;
                             }
                         }
