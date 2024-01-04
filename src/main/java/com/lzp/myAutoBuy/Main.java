@@ -5,6 +5,11 @@ import javax.imageio.ImageIO;
 
 
 
+
+
+
+
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -48,6 +53,15 @@ public class Main {
     private static int expectedWidthF;
     private static int expectedHeightF;
     private static int[] expectedPixelsF;
+
+
+    private static int expectedWidthH;
+    private static int expectedHeightH;
+    private static int[] expectedPixelsH;
+
+    private static int expectedWidthI;
+    private static int expectedHeightI;
+    private static int[] expectedPixelsI;
 
 
     private static int expectedWidthW;
@@ -117,6 +131,17 @@ public class Main {
             expectedHeightF = expectedImageF.getHeight();
             expectedPixelsF = expectedImageF.getRGB(0, 0, expectedWidthF, expectedHeightF, null, 0, expectedWidthF);
 
+            BufferedImage expectedImageH = ImageIO.read(new File("./!b5.png"));
+            expectedWidthH = expectedImageH.getWidth();
+            expectedHeightH = expectedImageH.getHeight();
+            expectedPixelsH = expectedImageH.getRGB(0, 0, expectedWidthH, expectedHeightH, null, 0, expectedWidthH);
+
+
+            BufferedImage expectedImageI = ImageIO.read(new File("./!b6.png"));
+            expectedWidthI = expectedImageI.getWidth();
+            expectedHeightI = expectedImageI.getHeight();
+            expectedPixelsI = expectedImageI.getRGB(0, 0, expectedWidthI, expectedHeightI, null, 0, expectedWidthI);
+
 
             BufferedImage expectedImageGo = ImageIO.read(new File("./gold.png"));
             expectedWidthGo = expectedImageGo.getWidth();
@@ -152,6 +177,7 @@ public class Main {
     public static void main(String[] args) throws Exception {
         Robot robot = new Robot();
         RobotPeer robotPeer = getRobotPeer(robot);
+
         method = robotPeer.getClass().getDeclaredMethod("getRGBPixels",int.class,int.class,int.class,int.class,int[].class);
         method.setAccessible(true);
         CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -186,7 +212,7 @@ public class Main {
 
 
         while (true) {
-            for (int l = 0; l <15000; l++) {
+            for (int l = 0; l < 15000; l++) {
                 long now = System.currentTimeMillis();
                 try {
                     openMarket(robot);
@@ -199,15 +225,17 @@ public class Main {
                         mousePressAndRelease(robot);
                         if (i == 1) {
                             //放到这里判断是为了性能
-                            if (! match()) {
+                            if (!match()) {
 
                                 proper = false;
                                 break;
                             }
-                            Thread.sleep(19);
                         }
                     }
+                    Thread.sleep(19);
                     if (proper) {
+
+
                         robot.mouseMove((int) points[4].getX(), (int) points[4].getY());
                         mousePressAndRelease(robot);
                         System.out.println("all" + (System.currentTimeMillis() - now));
@@ -298,7 +326,10 @@ public class Main {
         }
     }
 
-    private static void resetPoint(RobotPeer robotPeer) throws InterruptedException {
+
+
+    private static void resetPoint(RobotPeer robotPeer
+    ) throws InterruptedException {
         robotPeer.mouseMove((int) points[4].getX() -  captureRect.width*5/4, (int) points[4].getY());
         robotPeer.mousePress(InputEvent.BUTTON1_DOWN_MASK);
         Thread.sleep(1);
@@ -437,7 +468,9 @@ public class Main {
 
         robot.keyPress(KeyEvent.VK_ESCAPE);
         Thread.sleep(20);
+
         robot.keyRelease(KeyEvent.VK_ESCAPE);
+
     }
 
     private static boolean containQueryBox() throws InvocationTargetException, IllegalAccessException {
@@ -467,7 +500,8 @@ public class Main {
         try {
             return matchA(captureRect.width, captureRect.height) ||(matchB(captureRect.width, captureRect.height)
                     &&!matchC(captureRect.width, captureRect.height)&&!matchD(captureRect.width, captureRect.height)
-                    &&!matchE(captureRect.width, captureRect.height)&&!matchF(captureRect.width, captureRect.height));
+                    &&!matchE(captureRect.width, captureRect.height)&&!matchF(captureRect.width, captureRect.height)
+                    &&!matchH(captureRect.width, captureRect.height)&&!matchI(captureRect.width, captureRect.height));
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return false;
@@ -621,6 +655,54 @@ public class Main {
         return false;
     }
 
+    private static boolean matchH(int capturedWidth, int capturedHeight) {
+        int zy = captureRect.height/2;
+        int zx = captureRect.width - expectedWidthH;
+        for(int y1 = capturedHeight/10; y1 < zy; ++y1) {
+            label42:
+            for(int x1 = capturedWidth/10; x1 < zx; ++x1) {
+                int capturedPixel1 = captureRectArray[y1 * capturedWidth + x1];
+                if (expectedPixelsH[0] == capturedPixel1 ) {
+                    for (int y = 0; y < expectedHeightH; ++y) {
+                        for (int x = 0; x < expectedWidthH; ++x) {
+                            if (expectedPixelsH[y * expectedWidthH + x] != captureRectArray[(y + y1) * capturedWidth + x + x1]) {
+                                continue label42;
+                            }
+                        }
+                    }
+
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+
+    private static boolean matchI(int capturedWidth, int capturedHeight) {
+        int zy = captureRect.height/2;
+        int zx = captureRect.width - expectedWidthI;
+        for(int y1 = capturedHeight/10; y1 < zy; ++y1) {
+            label42:
+            for(int x1 = capturedWidth/10; x1 < zx; ++x1) {
+                int capturedPixel1 = captureRectArray[y1 * capturedWidth + x1];
+                if (expectedPixelsI[0] == capturedPixel1 ) {
+                    for (int y = 0; y < expectedHeightI; ++y) {
+                        for (int x = 0; x < expectedWidthI; ++x) {
+                            if (expectedPixelsI[y * expectedWidthI + x] != captureRectArray[(y + y1) * capturedWidth + x + x1]) {
+                                continue label42;
+                            }
+                        }
+                    }
+
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
     private static boolean matchB(int capturedWidth, int capturedHeight) {
         int zy = captureRect.height/2;
         int zx = captureRect.width - expectedWidthB;
