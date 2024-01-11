@@ -213,6 +213,7 @@ public class Main {
 
         while (true) {
             for (int l = 0; l < 15000; l++) {
+
                 long now = System.currentTimeMillis();
                 try {
                     openMarket(robot);
@@ -230,9 +231,9 @@ public class Main {
                                 proper = false;
                                 break;
                             }
+                            Thread.sleep(18);
                         }
                     }
-                    Thread.sleep(19);
                     if (proper) {
 
 
@@ -258,6 +259,7 @@ public class Main {
     private static void openMarket(Robot robot) {
         robot.keyPress(KeyEvent.VK_ALT);
         robot.keyPress(KeyEvent.VK_A);
+
     }
 
     private static RobotPeer getRobotPeer(Robot robot) throws NoSuchFieldException, IllegalAccessException {
