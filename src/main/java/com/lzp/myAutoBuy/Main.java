@@ -212,7 +212,7 @@ public class Main {
 
 
         while (true) {
-            for (int l = 0; l < 15000; l++) {
+            for (int l = 0; l < 10000; l++) {
 
                 long now = System.currentTimeMillis();
                 try {
@@ -240,7 +240,7 @@ public class Main {
                         robot.mouseMove((int) points[4].getX(), (int) points[4].getY());
                         mousePressAndRelease(robot);
                         System.out.println("all" + (System.currentTimeMillis() - now));
-                        Thread.sleep(4000);
+                        Thread.sleep(400);
                     }
                 } catch (Exception ignored) {
                     System.out.println(ignored);
