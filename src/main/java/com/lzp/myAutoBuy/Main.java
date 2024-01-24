@@ -240,7 +240,7 @@ public class Main {
                         robot.mouseMove((int) points[4].getX(), (int) points[4].getY());
                         mousePressAndRelease(robot);
                         System.out.println("all" + (System.currentTimeMillis() - now));
-                        Thread.sleep(400);
+                        Thread.sleep(1500);
                     }
                 } catch (Exception ignored) {
                     System.out.println(ignored);
@@ -362,9 +362,9 @@ public class Main {
         robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
     }
     private static void mousePressAndRelease2(Robot robot) {
-        robot.mousePress(InputEvent.BUTTON2_DOWN_MASK);
+        robot.mousePress(InputEvent.BUTTON3_DOWN_MASK);
         robot.delay(1);
-        robot.mouseRelease(InputEvent.BUTTON2_DOWN_MASK);
+        robot.mouseRelease(InputEvent.BUTTON3_DOWN_MASK);
     }
 
     private static void logOutAndLogin(Robot robot) throws InterruptedException {
