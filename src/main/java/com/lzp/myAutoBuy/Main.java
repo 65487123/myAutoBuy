@@ -1,6 +1,5 @@
 package com.lzp.myAutoBuy;
 
-import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
 
 
@@ -25,7 +24,6 @@ import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
@@ -501,9 +499,9 @@ public class Main {
     private static boolean match() {
         try {
             return matchA(captureRect.width, captureRect.height) ||(matchB(captureRect.width, captureRect.height)
-                    &&!matchC(captureRect.width, captureRect.height)&&!matchD(captureRect.width, captureRect.height)
-                    &&!matchE(captureRect.width, captureRect.height)&&!matchF(captureRect.width, captureRect.height)
-                    &&!matchH(captureRect.width, captureRect.height)&&!matchI(captureRect.width, captureRect.height));
+                    &&!match27(captureRect.width, captureRect.height)&&!match28(captureRect.width, captureRect.height)
+                    &&!match29(captureRect.width, captureRect.height)&&!match26(captureRect.width, captureRect.height)
+                    &&!match25(captureRect.width, captureRect.height)&&!match24(captureRect.width, captureRect.height));
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return false;
@@ -560,7 +558,7 @@ public class Main {
         return false;
     }
 
-    private static boolean matchC(int capturedWidth, int capturedHeight) {
+    private static boolean match27(int capturedWidth, int capturedHeight) {
         int zy = captureRect.height/2;
         int zx = captureRect.width - expectedWidthC;
         for(int y1 = capturedHeight/10; y1 < zy; ++y1) {
@@ -584,7 +582,7 @@ public class Main {
         return false;
     }
 
-    private static boolean matchD(int capturedWidth, int capturedHeight) {
+    private static boolean match28(int capturedWidth, int capturedHeight) {
         int zy = captureRect.height/2;
         int zx = captureRect.width - expectedWidthD;
         for(int y1 = capturedHeight/10; y1 < zy; ++y1) {
@@ -608,7 +606,7 @@ public class Main {
         return false;
     }
 
-    private static boolean matchE(int capturedWidth, int capturedHeight) {
+    private static boolean match29(int capturedWidth, int capturedHeight) {
         int zy = captureRect.height/2;
         int zx = captureRect.width - expectedWidthE;
         for(int y1 = capturedHeight/10; y1 < zy; ++y1) {
@@ -633,7 +631,7 @@ public class Main {
     }
 
 
-    private static boolean matchF(int capturedWidth, int capturedHeight) {
+    private static boolean match26(int capturedWidth, int capturedHeight) {
         int zy = captureRect.height/2;
         int zx = captureRect.width - expectedWidthF;
         for(int y1 = capturedHeight/10; y1 < zy; ++y1) {
@@ -657,7 +655,7 @@ public class Main {
         return false;
     }
 
-    private static boolean matchH(int capturedWidth, int capturedHeight) {
+    private static boolean match25(int capturedWidth, int capturedHeight) {
         int zy = captureRect.height/2;
         int zx = captureRect.width - expectedWidthH;
         for(int y1 = capturedHeight/10; y1 < zy; ++y1) {
@@ -682,7 +680,7 @@ public class Main {
     }
 
 
-    private static boolean matchI(int capturedWidth, int capturedHeight) {
+    private static boolean match24(int capturedWidth, int capturedHeight) {
         int zy = captureRect.height/2;
         int zx = captureRect.width - expectedWidthI;
         for(int y1 = capturedHeight/10; y1 < zy; ++y1) {
