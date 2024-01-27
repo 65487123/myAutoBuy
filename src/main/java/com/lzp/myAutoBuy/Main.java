@@ -90,7 +90,7 @@ public class Main {
      * 3 代表召唤灵积分券
      *
     * */
-    private static int type = 0;
+    private static int type = 3;
     private static AtomicInteger timeoutCount = new AtomicInteger();
     static {
         JOptionPane optionPane = new JOptionPane("请确保程序启动前购买窗口已打开！", JOptionPane.INFORMATION_MESSAGE);
@@ -210,7 +210,7 @@ public class Main {
 
 
         while (true) {
-            for (int l = 0; l < 10000; l++) {
+            for (int l = 0; l < 1000; l++) {
 
                 long now = System.currentTimeMillis();
                 try {
@@ -327,9 +327,15 @@ public class Main {
     }
 
 
-
     private static void resetPoint(RobotPeer robotPeer
     ) throws InterruptedException {
+        robotPeer.mouseMove(9999, 0);
+        for (int i = 0; i < 3; i++) {
+            robotPeer.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+            Thread.sleep(10);
+            robotPeer.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+        }
+
         robotPeer.mouseMove((int) points[4].getX() -  captureRect.width*5/4, (int) points[4].getY());
         robotPeer.mousePress(InputEvent.BUTTON1_DOWN_MASK);
         Thread.sleep(1);
@@ -367,11 +373,8 @@ public class Main {
 
     private static void logOutAndLogin(Robot robot) throws InterruptedException {
         escape(robot);
-        robot.keyPress(KeyEvent.VK_ALT);
-        robot.keyPress(KeyEvent.VK_F4);
-        Thread.sleep(500);
-        robot.keyRelease(KeyEvent.VK_F4);
-        robot.keyRelease(KeyEvent.VK_ALT);
+        robot.mouseMove((int) points[4].getX() +captureRect.width/2 , (int) points[4].getY() - captureRect.height*2/3);
+        mousePressAndRelease(robot);
         Thread.sleep(1000);
         robot.mouseMove((int) points[2].getX() +captureRect.width/2 , (int) points[2].getY() + captureRect.height/2);
         mousePressAndRelease(robot);
@@ -498,10 +501,10 @@ public class Main {
 
     private static boolean match() {
         try {
-            return matchA(captureRect.width, captureRect.height) ||(matchB(captureRect.width, captureRect.height)
+            return matchA(captureRect.width, captureRect.height) /*||(matchB(captureRect.width, captureRect.height)
                     &&!match27(captureRect.width, captureRect.height)&&!match28(captureRect.width, captureRect.height)
                     &&!match29(captureRect.width, captureRect.height)&&!match26(captureRect.width, captureRect.height)
-                    &&!match25(captureRect.width, captureRect.height)&&!match24(captureRect.width, captureRect.height));
+                    &&!match25(captureRect.width, captureRect.height)&&!match24(captureRect.width, captureRect.height))*/;
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return false;
