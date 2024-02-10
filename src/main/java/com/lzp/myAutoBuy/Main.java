@@ -90,7 +90,7 @@ public class Main {
      * 3 代表召唤灵积分券
      *
     * */
-    private static int type = 3;
+    private static int type = 0;
     private static AtomicInteger timeoutCount = new AtomicInteger();
     static {
         JOptionPane optionPane = new JOptionPane("请确保程序启动前购买窗口已打开！", JOptionPane.INFORMATION_MESSAGE);
@@ -210,7 +210,7 @@ public class Main {
 
 
         while (true) {
-            for (int l = 0; l < 1000; l++) {
+            for (int l = 0; l < 12000; l++) {
 
                 long now = System.currentTimeMillis();
                 try {
@@ -501,10 +501,10 @@ public class Main {
 
     private static boolean match() {
         try {
-            return matchA(captureRect.width, captureRect.height) /*||(matchB(captureRect.width, captureRect.height)
+            return matchA(captureRect.width, captureRect.height) ||(matchB(captureRect.width, captureRect.height)
                     &&!match27(captureRect.width, captureRect.height)&&!match28(captureRect.width, captureRect.height)
                     &&!match29(captureRect.width, captureRect.height)&&!match26(captureRect.width, captureRect.height)
-                    &&!match25(captureRect.width, captureRect.height)&&!match24(captureRect.width, captureRect.height))*/;
+                    /*&&!match25(captureRect.width, captureRect.height)&&!match24(captureRect.width, captureRect.height)*/);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return false;
