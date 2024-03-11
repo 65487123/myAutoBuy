@@ -1,19 +1,9 @@
 package com.lzp.myAutoBuy;
 
 import javax.imageio.ImageIO;
-
-
-
-
-
-
-
-
 import javax.swing.*;
 import java.awt.*;
-
 import java.awt.event.InputEvent;
-
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.awt.peer.RobotPeer;
@@ -240,8 +230,11 @@ public class Main {
                         System.out.println("all" + (System.currentTimeMillis() - now));
                         Thread.sleep(1500);
                     }
-                } catch (Exception ignored) {
-                    System.out.println(ignored);
+                } catch (Exception e) {
+                    if (e.getMessage()!=null){
+                        break;
+                    }
+                    System.out.println(e);
                 }
                 mousePressAndRelease2(robot);
 
@@ -249,7 +242,7 @@ public class Main {
                 mousePressAndRelease(robot);
                 System.out.println(System.currentTimeMillis() - now);
             }
-            Thread.sleep(1000);
+            Thread.sleep(500);
             logOutAndLogin(robot);
         }
     }
@@ -309,8 +302,8 @@ public class Main {
             if (System.currentTimeMillis() - now > 200) {
                 System.out.println("open market timeout");
                 if (timeoutCount.incrementAndGet() > 15) {
-                    resetPoint(robot);
                     timeoutCount.set(0);
+                    throw new RuntimeException("15");
                 }
                 throw new RuntimeException();
             }
@@ -378,6 +371,17 @@ public class Main {
         Thread.sleep(1000);
         robot.mouseMove((int) points[2].getX() +captureRect.width/2 , (int) points[2].getY() + captureRect.height/2);
         mousePressAndRelease(robot);
+        robot.keyPress(KeyEvent.VK_ALT);
+        Thread.sleep(20);
+        robot.keyPress(KeyEvent.VK_F4);
+        Thread.sleep(20);
+        robot.keyRelease(KeyEvent.VK_ALT);
+        Thread.sleep(20);
+        robot.keyRelease(KeyEvent.VK_F4);
+        robot.keyPress(KeyEvent.VK_ENTER);
+        Thread.sleep(20);
+        robot.keyRelease(KeyEvent.VK_ENTER);
+        //login
         Thread.sleep(6000);
         robot.mouseMove(captureRect.width/5 , captureRect.height/6);
         mousePressAndRelease(robot);
@@ -502,9 +506,10 @@ public class Main {
     private static boolean match() {
         try {
             return matchA(captureRect.width, captureRect.height) ||(matchB(captureRect.width, captureRect.height)
-                    &&!match27(captureRect.width, captureRect.height)&&!match28(captureRect.width, captureRect.height)
-                    &&!match29(captureRect.width, captureRect.height)&&!match26(captureRect.width, captureRect.height)
-                    /*&&!match25(captureRect.width, captureRect.height)&&!match24(captureRect.width, captureRect.height)*/);
+                    /*&&!match27(captureRect.width, captureRect.height)&&!match28(captureRect.width, captureRect.height)
+                    &&!match29(captureRect.width, captureRect.height)&&!match26(captureRect.width, captureRect.height)*/
+                    /*&&!match25(captureRect.width, captureRect.height)&&!match24(captureRect.width, captureRect.height)*/)
+                    ||match30(captureRect.width, captureRect.height);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return false;
@@ -683,7 +688,7 @@ public class Main {
     }
 
 
-    private static boolean match24(int capturedWidth, int capturedHeight) {
+    private static boolean match30(int capturedWidth, int capturedHeight) {
         int zy = captureRect.height/2;
         int zx = captureRect.width - expectedWidthI;
         for(int y1 = capturedHeight/10; y1 < zy; ++y1) {
