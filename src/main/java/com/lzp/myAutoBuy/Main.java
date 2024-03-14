@@ -369,8 +369,6 @@ public class Main {
         robot.mouseMove((int) points[4].getX() +captureRect.width/2 , (int) points[4].getY() - captureRect.height*2/3);
         mousePressAndRelease(robot);
         Thread.sleep(1000);
-        robot.mouseMove((int) points[2].getX() +captureRect.width/2 , (int) points[2].getY() + captureRect.height/2);
-        mousePressAndRelease(robot);
         robot.keyPress(KeyEvent.VK_ALT);
         Thread.sleep(20);
         robot.keyPress(KeyEvent.VK_F4);
@@ -381,6 +379,8 @@ public class Main {
         robot.keyPress(KeyEvent.VK_ENTER);
         Thread.sleep(20);
         robot.keyRelease(KeyEvent.VK_ENTER);
+        robot.mouseMove((int) points[2].getX() +captureRect.width/2 , (int) points[2].getY() + captureRect.height/2);
+        mousePressAndRelease(robot);
         //login
         Thread.sleep(6000);
         robot.mouseMove(captureRect.width/5 , captureRect.height/6);
@@ -503,8 +503,20 @@ public class Main {
     }
 
 
+
+
+
+
+
+
+
+
+
+
+
     private static boolean match() {
         try {
+
             return matchA(captureRect.width, captureRect.height) ||(matchB(captureRect.width, captureRect.height)
                     /*&&!match27(captureRect.width, captureRect.height)&&!match28(captureRect.width, captureRect.height)
                     &&!match29(captureRect.width, captureRect.height)&&!match26(captureRect.width, captureRect.height)*/
