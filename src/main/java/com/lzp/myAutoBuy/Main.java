@@ -376,6 +376,7 @@ public class Main {
         robot.keyRelease(KeyEvent.VK_ALT);
         Thread.sleep(20);
         robot.keyRelease(KeyEvent.VK_F4);
+        Thread.sleep(20);
         robot.keyPress(KeyEvent.VK_ENTER);
         Thread.sleep(20);
         robot.keyRelease(KeyEvent.VK_ENTER);
@@ -395,7 +396,7 @@ public class Main {
         Thread.sleep(5000);
         robot.mouseMove((int) points[2].getX() - captureRect.width , (int) points[2].getY() + captureRect.height  / 3);
         mousePressAndRelease(robot);
-        Thread.sleep(20000);
+        Thread.sleep(15000);
         escape(robot);
         robot.mouseMove((int) points[4].getX() -  captureRect.width*5/4, (int) points[4].getY());
         mousePressAndRelease(robot);
