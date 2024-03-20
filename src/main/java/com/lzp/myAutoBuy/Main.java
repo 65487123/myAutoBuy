@@ -366,21 +366,18 @@ public class Main {
 
     private static void logOutAndLogin(Robot robot) throws InterruptedException {
         escape(robot);
+        //游戏中界面
         robot.mouseMove((int) points[4].getX() +captureRect.width/2 , (int) points[4].getY() - captureRect.height*2/3);
         mousePressAndRelease(robot);
+        //游戏登录界面
+        robot.mouseMove((int) points[4].getX() +captureRect.width*6/5 , (int) points[4].getY() - captureRect.height/3);
+        mousePressAndRelease(robot);
         Thread.sleep(1000);
-        robot.keyPress(KeyEvent.VK_ALT);
-        Thread.sleep(20);
-        robot.keyPress(KeyEvent.VK_F4);
-        Thread.sleep(20);
-        robot.keyRelease(KeyEvent.VK_ALT);
-        Thread.sleep(20);
-        robot.keyRelease(KeyEvent.VK_F4);
-        Thread.sleep(20);
-        robot.keyPress(KeyEvent.VK_ENTER);
-        Thread.sleep(20);
-        robot.keyRelease(KeyEvent.VK_ENTER);
+        //游戏中界面
         robot.mouseMove((int) points[2].getX() +captureRect.width/2 , (int) points[2].getY() + captureRect.height/2);
+        mousePressAndRelease(robot);
+        //游戏登陆界面
+        robot.mouseMove((int) points[2].getX() - captureRect.width , (int) points[2].getY());
         mousePressAndRelease(robot);
         //login
         Thread.sleep(6000);
