@@ -292,7 +292,7 @@ public class Main {
     }
 
     private static void waitUntilQueryBoxComeAndGone(RobotPeer robot) throws InvocationTargetException, IllegalAccessException, AWTException, IOException, InterruptedException {
-        Thread.sleep(45);
+        Thread.sleep(25);
         robot.keyRelease(KeyEvent.VK_A);
         robot.keyRelease(KeyEvent.VK_ALT);
         method.invoke(robot,captureRect.x,captureRect.y,captureRect.width,captureRect.height,captureRectArray);
