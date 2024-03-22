@@ -301,7 +301,7 @@ public class Main {
             method.invoke(robot,captureRect.x,captureRect.y,captureRect.width,captureRect.height,captureRectArray);
             if (System.currentTimeMillis() - now > 200) {
                 System.out.println("open market timeout");
-                if (timeoutCount.incrementAndGet() > 15) {
+                if (timeoutCount.incrementAndGet() > 50) {
                     timeoutCount.set(0);
                     throw new RuntimeException("15");
                 }
