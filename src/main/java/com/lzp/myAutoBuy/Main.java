@@ -231,7 +231,7 @@ public class Main {
                         Thread.sleep(1500);
                     }
                 } catch (Exception e) {
-                    if (e.getMessage()!=null){
+                    if (e.getMessage() != null) {
                         break;
                     }
                     System.out.println(e);
@@ -303,7 +303,7 @@ public class Main {
                 System.out.println("open market timeout");
                 if (timeoutCount.incrementAndGet() > 50) {
                     timeoutCount.set(0);
-                    throw new RuntimeException("15");
+                    throw new RuntimeException("50");
                 }
                 throw new RuntimeException();
             }
